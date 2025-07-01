@@ -44,7 +44,7 @@
         <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col"> <!-- Sidebar più scura, bordo più scuro -->
             <div class="px-6 py-4 border-b border-gray-800 flex items-center gap-2"> <!-- Bordo inferiore più scuro -->
                 <span class="material-symbols-outlined text-emerald-400">task_alt</span> <!-- Icona con accento verde smeraldo -->
-                <h1 class="text-2xl font-bold text-gray-100">DioSupremo-ToDo</h1>
+                <h1 class="text-2xl font-bold text-gray-100">Super-ToDo</h1>
             </div>
             <nav id="project-list" class="flex-1 p-4 space-y-1">
                 <div class="text-center text-gray-500 text-sm mt-4">Caricamento...</div>
@@ -154,6 +154,10 @@
                         <label for="progress-text" class="block text-sm font-medium text-gray-300 mb-1">Progresso</label>
                         <textarea id="progress-text" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors" placeholder="Es: 2 palette su 4 recuperate..."></textarea> <!-- Input con focus verde smeraldo -->
                     </div>
+                    <div class="mb-4">
+                        <label for="progress-timestamp" class="block text-sm font-medium text-gray-300 mb-1">Data/Ora Progresso (Opzionale)</label>
+                        <input type="datetime-local" id="progress-timestamp" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors">
+                    </div>
                 </div>
                 <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
                     <button type="button" id="cancel-progress-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
@@ -222,6 +226,7 @@
         const progressTaskIdInput = document.getElementById('progress-task-id');
         const progressTaskTitleInput = document.getElementById('progress-task-title');
         const progressTextInput = document.getElementById('progress-text');
+        const progressTimestampInput = document.getElementById('progress-timestamp'); // Nuovo selettore per il timestamp
 
         // --- FUNZIONI DI RENDERIZZAZIONE ---
         const renderProjects = () => {
@@ -305,21 +310,27 @@
                 
                 const descriptionHTML = task.description ? `<div class="text-sm text-gray-400">${task.description}</div>` : '';
                 
-                // Modifiche qui per rendere il progresso più visibile
-                const progressHTML = task.progress ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${task.progress}</div>` : ''; // Testo più scuro e più grassetto
+                // Gestione e visualizzazione dello storico del progresso
+                const latestProgress = task.progressHistory && task.progressHistory.length > 0 
+                                     ? task.progressHistory[task.progressHistory.length - 1] 
+                                     : null;
                 
-                // Formatta la data e l'ora dell'ultimo aggiornamento
+                const progressText = latestProgress ? latestProgress.text : '';
+                const progressTimestamp = latestProgress && latestProgress.timestamp ? latestProgress.timestamp : null;
+
+                const progressHTML = progressText ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${progressText}</div>` : '';
+                
+                // Formatta la data e l'ora dell'ultimo aggiornamento (dal progresso più recente)
                 let lastUpdatedHTML = '';
-                if (task.lastUpdated && task.lastUpdated.toDate) { // Controlla se è un oggetto Timestamp di Firebase
-                    const date = task.lastUpdated.toDate();
-                    lastUpdatedHTML = `<div class="text-xs text-gray-500 mt-1">Aggiornato: ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT')}</div>`;
-                } else if (task.lastUpdated) { // Se è una stringa o altro formato
-                    const date = new Date(task.lastUpdated);
-                    lastUpdatedHTML = `<div class="text-xs text-gray-500 mt-1">Aggiornato: ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT')}</div>`;
+                if (progressTimestamp) {
+                    const date = progressTimestamp.toDate ? progressTimestamp.toDate() : new Date(progressTimestamp);
+                    if (!isNaN(date.getTime())) { // Valida la data
+                        lastUpdatedHTML = `<div class="text-xs text-gray-500 mt-1">Aggiornato: ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT')}</div>`;
+                    }
                 }
 
                 taskEl.innerHTML = `
-                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500">
+                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500" ${task.completed ? 'checked' : ''}>
                     <div class="flex-1">
                         <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title}</p>
                         ${descriptionHTML}
@@ -385,7 +396,24 @@
             progressForm.reset();
             progressTaskIdInput.value = task.id;
             progressTaskTitleInput.value = task.title; // Titolo del task in sola lettura
-            progressTextInput.value = task.progress || ''; // Progresso attuale
+            
+            const latestProgress = task.progressHistory && task.progressHistory.length > 0 
+                                 ? task.progressHistory[task.progressHistory.length - 1] 
+                                 : null;
+
+            progressTextInput.value = latestProgress ? latestProgress.text : ''; // Progresso attuale
+            
+            // Popola il campo data/ora con l'ultimo timestamp o l'ora corrente
+            if (latestProgress && latestProgress.timestamp) {
+                const date = latestProgress.timestamp.toDate ? latestProgress.timestamp.toDate() : new Date(latestProgress.timestamp);
+                if (!isNaN(date.getTime())) {
+                    progressTimestampInput.value = date.toISOString().slice(0, 16); // Formato per datetime-local
+                } else {
+                    progressTimestampInput.value = new Date().toISOString().slice(0, 16);
+                }
+            } else {
+                progressTimestampInput.value = new Date().toISOString().slice(0, 16); // Default all'ora attuale
+            }
             openModal(progressModal);
         };
 
@@ -412,7 +440,7 @@
                     ...taskData,
                     projectId: state.activeProjectId,
                     completed: false,
-                    progress: '', // Inizializza il progresso vuoto per i nuovi task
+                    progressHistory: [], // Inizializza lo storico del progresso come array vuoto
                     lastUpdated: new Date(), // Aggiungi il timestamp di creazione
                     createdAt: new Date()
                 });
@@ -425,13 +453,42 @@
         progressForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const taskId = progressTaskIdInput.value;
-            const newProgress = progressTextInput.value;
+            const newProgressText = progressTextInput.value;
+            const manualTimestampString = progressTimestampInput.value;
+
+            let chosenDate;
+            if (manualTimestampString) {
+                chosenDate = new Date(manualTimestampString);
+                if (isNaN(chosenDate.getTime())) { // Valida la data manuale
+                    chosenDate = new Date(); // Fallback all'ora corrente se non valida
+                    console.warn("Data/ora progresso manuale non valida, usando l'ora corrente.");
+                }
+            } else {
+                chosenDate = new Date(); // Usa l'ora corrente se il campo è vuoto
+            }
 
             if (taskId) {
                 const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, taskId);
+                
+                // Recupera il task corrente per ottenere lo storico del progresso
+                const currentTask = state.tasks.find(t => t.id === taskId);
+                let currentProgressHistory = [];
+
+                if (currentTask) {
+                    if (Array.isArray(currentTask.progressHistory)) {
+                        currentProgressHistory = [...currentTask.progressHistory];
+                    } else if (typeof currentTask.progress === 'string' && currentTask.progress) {
+                        // Migrazione: se il vecchio campo 'progress' è una stringa, usalo come primo elemento dello storico
+                        currentProgressHistory.push({ text: currentTask.progress, timestamp: currentTask.lastUpdated || currentTask.createdAt || new Date() });
+                    }
+                }
+
+                // Aggiungi il nuovo progresso allo storico
+                currentProgressHistory.push({ text: newProgressText, timestamp: chosenDate });
+
                 await updateDoc(taskRef, { 
-                    progress: newProgress,
-                    lastUpdated: new Date() // Aggiorna il timestamp quando il progresso viene salvato
+                    progressHistory: currentProgressHistory,
+                    lastUpdated: chosenDate // Aggiorna il timestamp generale del task all'ultimo progresso
                 });
             }
             closeModal(progressModal);
@@ -444,9 +501,17 @@
 
             const taskId = target.dataset.taskId;
             if (!taskId) return;
+            
             const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, taskId);
+            const taskIndex = state.tasks.findIndex(t => t.id === taskId);
+
 
             if (target.classList.contains('toggle-task-cb')) {
+                // Aggiornamento ottimistico dell'UI
+                if (taskIndex !== -1) {
+                    state.tasks[taskIndex].completed = target.checked;
+                    renderTasks(); // Re-render immediato per feedback visivo
+                }
                 await updateDoc(taskRef, { completed: target.checked });
             }
             if (target.classList.contains('delete-btn')) {
