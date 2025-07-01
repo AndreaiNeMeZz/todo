@@ -19,16 +19,9 @@
         .modal-backdrop {
             background-color: rgba(0, 0, 0, 0.5); /* Sfondo modale originale */
             transition: opacity 0.3s ease; /* Transizione originale */
-            /* backdrop-filter e -webkit-backdrop-filter rimossi */
         }
         .modal-content {
             transition: transform 0.3s ease; /* Transizione originale */
-        }
-        .modal-backdrop.hidden .modal-content {
-            /* Regole rimosse */
-        }
-        .modal-backdrop.show .modal-content {
-            /* Regole rimosse */
         }
         .priority-dot {
             width: 10px;
@@ -63,6 +56,13 @@
             background-color: #EF4000; /* red-500 */
             color: #FFFFFF;
         }
+
+        /* Stili per il modale di autenticazione */
+        #auth-modal .auth-form-toggle {
+            cursor: pointer;
+            text-decoration: underline;
+            color: #A78BFA; /* purple-400 */
+        }
     </style>
     <script>
         // Imposta sempre il tema scuro all'avvio
@@ -91,11 +91,15 @@
                     <span class="material-symbols-outlined">archive</span>
                     <span id="toggle-archived-projects-text">Mostra Progetti Archiviati</span>
                 </button>
+                <button id="logout-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 hover:bg-gray-700 p-2 rounded-md transition-colors mt-2">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Logout</span>
+                </button>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col">
+        <main id="main-app-content" class="flex-1 flex flex-col hidden"> <!-- Contenuto principale nascosto di default -->
             <header class="bg-gray-900 border-b border-gray-800 flex items-center justify-between p-4"> <!-- Header più scuro, bordo più scuro -->
                 <div class="flex-1">
                     <h2 id="current-project-title" class="text-xl font-bold text-gray-100"></h2>
@@ -237,12 +241,57 @@
         </div>
     </div>
 
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10">
+            <div class="p-6">
+                <h3 id="auth-modal-title" class="text-xl font-bold mb-4 text-gray-100">Accedi</h3>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                        <input type="email" id="login-email" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 transition-colors" required>
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                        <input type="password" id="login-password" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 transition-colors" required>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Accedi</button>
+                    <p class="text-center text-sm text-gray-400">Non hai un account? <span class="auth-form-toggle" data-form="register">Registrati</span></p>
+                </form>
+
+                <form id="register-form" class="space-y-4 hidden">
+                    <div>
+                        <label for="register-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                        <input type="email" id="register-email" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 transition-colors" required>
+                    </div>
+                    <div>
+                        <label for="register-password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                        <input type="password" id="register-password" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 transition-colors" required>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Registrati</button>
+                    <p class="text-center text-sm text-gray-400">Hai già un account? <span class="auth-form-toggle" data-form="login">Accedi</span></p>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <div class="relative flex items-center justify-center">
+                        <div class="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-gray-700"></div>
+                        <span class="relative bg-gray-800 px-4 text-sm text-gray-400">oppure</span>
+                    </div>
+                    <button id="google-login-btn" class="w-full mt-4 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" class="h-5 w-5">
+                        Accedi con Google
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Messaggio di Feedback -->
     <div id="feedback-message" class="hidden"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- INIZIO CONFIGURAZIONE FIREBASE ---
@@ -266,29 +315,26 @@
             fb_db: null,
             fb_auth: null,
             userId: null,
-            searchQuery: '', // Nuovo stato per la query di ricerca
-            showArchivedProjects: false, // Nuovo stato per mostrare/nascondere progetti archiviati
-            activeView: 'tasks', // Nuovo stato per la vista attiva: 'tasks' o 'dashboard'
-            // L'ID dell'app è ora preso direttamente da firebaseConfig
+            isLoggedIn: false, // Nuovo stato per l'autenticazione
+            searchQuery: '', 
+            showArchivedProjects: false, 
+            activeView: 'tasks', 
             appId: firebaseConfig.appId, 
             projectsUnsubscribe: () => {},
             tasksUnsubscribe: () => {},
         };
 
         // --- SELETTORI DOM ---
+        const mainAppContentEl = document.getElementById('main-app-content'); // Contenitore principale dell'app
         const projectListEl = document.getElementById('project-list');
         const taskListContainerEl = document.getElementById('task-list-container');
-        const dashboardContainerEl = document.getElementById('dashboard-container'); // Rimosso
-        const mainContentAreaEl = document.getElementById('main-content-area'); // Rimosso
-
         const currentProjectTitleEl = document.getElementById('current-project-title');
         const addTaskBtn = document.getElementById('add-task-btn');
         const filterButtons = document.querySelectorAll('.filter-btn');
         const addProjectBtn = document.getElementById('add-project-btn');
-        const searchInput = document.getElementById('search-input'); // Nuovo selettore
-        const toggleArchivedProjectsBtn = document.getElementById('toggle-archived-projects-btn'); // Nuovo selettore
-        const toggleArchivedProjectsText = document.getElementById('toggle-archived-projects-text'); // Nuovo selettore
-        const viewToggleButtons = document.querySelectorAll('.view-toggle-btn'); // Rimosso
+        const searchInput = document.getElementById('search-input'); 
+        const toggleArchivedProjectsBtn = document.getElementById('toggle-archived-projects-btn'); 
+        const toggleArchivedProjectsText = document.getElementById('toggle-archived-projects-text'); 
 
         // Task Modal
         const taskModal = document.getElementById('task-modal');
@@ -296,19 +342,18 @@
         const cancelBtn = document.getElementById('cancel-btn');
         const taskTitleInput = document.getElementById('task-title');
         const taskDescriptionInput = document.getElementById('task-description');
-        const subtasksContainer = document.getElementById('subtasks-container'); // Nuovo selettore
-        const addSubtaskBtn = document.getElementById('add-subtask-btn'); // Nuovo selettore
-        const isRecurringCheckbox = document.getElementById('is-recurring-checkbox'); // Nuovo selettore
-        const recurrenceOptions = document.getElementById('recurrence-options'); // Nuovo selettore
-        const recurrenceTypeSelect = document.getElementById('recurrence-type'); // Nuovo selettore
-
+        const subtasksContainer = document.getElementById('subtasks-container'); 
+        const addSubtaskBtn = document.getElementById('add-subtask-btn'); 
+        const isRecurringCheckbox = document.getElementById('is-recurring-checkbox'); 
+        const recurrenceOptions = document.getElementById('recurrence-options'); 
+        const recurrenceTypeSelect = document.getElementById('recurrence-type'); 
 
         // Project Modal
         const projectModal = document.getElementById('project-modal');
         const projectForm = document.getElementById('project-form');
         const cancelProjectBtn = document.getElementById('cancel-project-btn');
 
-        // Progress Modal (Nuovi selettori)
+        // Progress Modal
         const progressModal = document.getElementById('progress-modal');
         const progressForm = document.getElementById('progress-form');
         const cancelProgressBtn = document.getElementById('cancel-progress-btn');
@@ -318,6 +363,20 @@
 
         // Messaggio di Feedback
         const feedbackMessageEl = document.getElementById('feedback-message');
+
+        // Auth Modal Selectors
+        const authModal = document.getElementById('auth-modal');
+        const authModalTitle = document.getElementById('auth-modal-title');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginEmailInput = document.getElementById('login-email');
+        const loginPasswordInput = document.getElementById('login-password');
+        const registerEmailInput = document.getElementById('register-email');
+        const registerPasswordInput = document.getElementById('register-password');
+        const googleLoginBtn = document.getElementById('google-login-btn');
+        const authFormToggles = document.querySelectorAll('.auth-form-toggle');
+        const logoutBtn = document.getElementById('logout-btn');
+
 
         // --- FUNZIONI DI UTILITÀ ---
         const showMessage = (message, type) => {
@@ -336,8 +395,70 @@
             });
         };
 
+        // --- FUNZIONI DI AUTENTICAZIONE ---
+        const loginUser = async (email, password) => {
+            try {
+                await signInWithEmailAndPassword(state.fb_auth, email, password);
+                showMessage('Accesso effettuato con successo!', 'success');
+                closeModal(authModal);
+            } catch (error) {
+                console.error("Errore di accesso:", error);
+                showMessage(`Errore di accesso: ${error.message}`, 'error');
+            }
+        };
+
+        const registerUser = async (email, password) => {
+            try {
+                await createUserWithEmailAndPassword(state.fb_auth, email, password);
+                showMessage('Registrazione effettuata con successo! Ora puoi accedere.', 'success');
+                // Dopo la registrazione, potresti voler loggare automaticamente o mostrare la form di login
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                authModalTitle.textContent = 'Accedi';
+            } catch (error) {
+                console.error("Errore di registrazione:", error);
+                showMessage(`Errore di registrazione: ${error.message}`, 'error');
+            }
+        };
+
+        const signInWithGoogle = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(state.fb_auth, provider);
+                showMessage('Accesso con Google effettuato con successo!', 'success');
+                closeModal(authModal);
+            } catch (error) {
+                console.error("Errore accesso Google:", error);
+                showMessage(`Errore accesso Google: ${error.message}`, 'error');
+            }
+        };
+
+        const logoutUser = async () => {
+            try {
+                await signOut(state.fb_auth);
+                showMessage('Disconnessione effettuata!', 'success');
+                // Resetta lo stato e mostra il modale di autenticazione
+                state.userId = null;
+                state.isLoggedIn = false;
+                state.projects = [];
+                state.tasks = [];
+                state.activeProjectId = null;
+                render(); // Re-render completo per pulire l'UI
+                openModal(authModal);
+            } catch (error) {
+                console.error("Errore logout:", error);
+                showMessage(`Errore logout: ${error.message}`, 'error');
+            }
+        };
+
+
         // --- FUNZIONI DI RENDERIZZAZIONE ---
         const renderProjects = () => {
+            if (!state.isLoggedIn) {
+                projectListEl.innerHTML = `<div class="text-center text-gray-500 text-sm p-4">Effettua l'accesso per vedere i tuoi progetti.</div>`;
+                return;
+            }
+
             if (state.projects.length === 0) {
                 projectListEl.innerHTML = `
                     <div class="text-center text-gray-500 text-sm p-4 flex flex-col items-center justify-center h-full">
@@ -402,33 +523,22 @@
         };
 
         const renderTasks = () => {
+            // Nascondi o mostra il contenuto principale dell'app in base allo stato di login
+            if (!state.isLoggedIn) {
+                mainAppContentEl.classList.add('hidden');
+                return; // Non renderizzare i task se non loggato
+            } else {
+                mainAppContentEl.classList.remove('hidden');
+            }
+
             // Nascondi o mostra i contenitori in base alla vista attiva
             if (state.activeView === 'tasks') {
                 taskListContainerEl.classList.remove('hidden');
-                // dashboardContainerEl.classList.add('hidden'); // Rimosso
-                // Aggiorna lo stato dei pulsanti di vista
-                // viewToggleButtons.forEach(btn => { // Rimosso
-                //     btn.classList.remove('active', 'text-purple-400');
-                //     btn.classList.add('text-gray-400', 'hover:text-gray-200');
-                //     if (btn.dataset.view === 'tasks') {
-                //         btn.classList.add('active', 'text-purple-400');
-                //         btn.classList.remove('text-gray-400', 'hover:text-gray-200');
-                //     }
-                // });
-            } else { // dashboard
-                // taskListContainerEl.classList.add('hidden'); // Rimosso
-                // dashboardContainerEl.classList.remove('hidden'); // Rimosso
-                // Aggiorna lo stato dei pulsanti di vista
-                // viewToggleButtons.forEach(btn => { // Rimosso
-                //     btn.classList.remove('active', 'text-purple-400');
-                //     btn.classList.add('text-gray-400', 'hover:text-gray-200');
-                //     if (btn.dataset.view === 'dashboard') {
-                //         btn.classList.add('active', 'text-purple-400');
-                //         btn.classList.remove('text-gray-400', 'hover:text-gray-200');
-                //     }
-                // });
-                // renderDashboard(); // Rimosso
-                // return; // Non renderizzare i task se siamo nella dashboard
+            } else { // dashboard (nel caso volessimo riaggiungerla)
+                taskListContainerEl.classList.add('hidden');
+                // dashboardContainerEl.classList.remove('hidden');
+                // renderDashboard();
+                // return;
             }
 
 
@@ -1120,23 +1230,29 @@
                 state.fb_db = getFirestore(app);
                 state.fb_auth = getAuth(app);
 
+                // Gestisce lo stato di autenticazione
                 onAuthStateChanged(state.fb_auth, user => {
                     if (user) {
                         state.userId = user.uid;
+                        state.isLoggedIn = true;
+                        // Chiudi il modale di autenticazione se aperto
+                        closeModal(authModal); 
                         attachFirestoreListeners();
                     } else {
-                        // Gestisce il caso in cui non ci sia un utente, ad esempio, azzerando lo stato o mostrando un login
-                        console.log("Nessun utente loggato.");
+                        state.userId = null;
+                        state.isLoggedIn = false;
+                        // Resetta i dati e mostra il modale di autenticazione se non loggato
                         state.projects = [];
                         state.tasks = [];
                         state.activeProjectId = null;
-                        render();
-                        projectListEl.innerHTML = `<div class="text-center text-gray-400 text-sm mt-4">Accedi per vedere i tuoi progetti.</div>`;
+                        render(); // Re-render per pulire l'UI
+                        openModal(authModal); // Apri il modale di autenticazione
                     }
                 });
                 
-                // Su GitHub Pages, ci autentichiamo sempre in modo anonimo
-                await signInAnonymously(state.fb_auth);
+                // Su GitHub Pages non usiamo __initial_auth_token, ci affidiamo a onAuthStateChanged
+                // Non chiamiamo signInAnonymously qui, lasciamo che onAuthStateChanged gestisca il primo stato
+                // Se non c'è utente, onAuthStateChanged aprirà il modale di autenticazione.
 
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
@@ -1147,6 +1263,9 @@
         function attachFirestoreListeners() {
             if (!state.userId) {
                 console.warn("Tentativo di allegare listener Firestore senza userId.");
+                // Scollega eventuali listener precedenti se l'utente si è disconnesso
+                state.projectsUnsubscribe();
+                state.tasksUnsubscribe();
                 return;
             }
 
