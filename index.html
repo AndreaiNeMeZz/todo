@@ -45,7 +45,7 @@
             transform: translateY(20px);
         }
         #feedback-message.show {
-            opacity: 0.5;
+            opacity: 1;
             transform: translateY(0);
         }
         #feedback-message.success {
@@ -91,11 +91,11 @@
                     <span class="material-symbols-outlined">create_new_folder</span>
                     <span>Nuovo Progetto</span>
                 </button>
-                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 opacity-50 hover:bg-gray-800 hover:text-white p-2 rounded-md transition-colors mt-2">
+                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 hover:bg-gray-800 hover:text-white p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">archive</span>
                     <span id="toggle-archived-projects-text">Mostra Progetti Archiviati</span>
                 </button>
-                <button id="logout-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 opacity-50 hover:bg-gray-800 p-2 rounded-md transition-colors mt-2">
+                <button id="logout-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 hover:bg-gray-700 p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Logout</span>
                 </button>
@@ -290,6 +290,20 @@
         </div>
     </div>
 
+    <!-- Logout Confirmation Modal -->
+    <div id="logout-confirm-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-sm transform -translate-y-10">
+            <div class="p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-100">Conferma Logout</h3>
+                <p class="text-gray-300 mb-6">Sei sicuro di voler effettuare il logout?</p>
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="cancel-logout-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
+                    <button type="button" id="confirm-logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Conferma Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Messaggio di Feedback -->
     <div id="feedback-message" class="hidden"></div>
 
@@ -380,7 +394,12 @@
         const googleLoginBtn = document.getElementById('google-login-btn');
         const authFormToggles = document.querySelectorAll('.auth-form-toggle');
         const logoutBtn = document.getElementById('logout-btn');
-        const userInfoDisplay = document.getElementById('user-info-display'); // Nuovo selettore
+        const userInfoDisplay = document.getElementById('user-info-display'); 
+
+        // Logout Confirmation Modal Selectors
+        const logoutConfirmModal = document.getElementById('logout-confirm-modal');
+        const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+        const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
 
 
         // --- FUNZIONI DI UTILITÀ ---
@@ -439,6 +458,11 @@
         };
 
         const logoutUser = async () => {
+            // Apre il modale di conferma logout
+            openModal(logoutConfirmModal);
+        };
+
+        const confirmAndPerformLogout = async () => {
             try {
                 await signOut(state.fb_auth);
                 showMessage('Disconnessione effettuata!', 'success');
@@ -449,10 +473,12 @@
                 state.tasks = [];
                 state.activeProjectId = null;
                 render(); // Re-render completo per pulire l'UI
-                openModal(authModal);
+                closeModal(logoutConfirmModal); // Chiudi il modale di conferma
+                openModal(authModal); // Apri il modale di autenticazione
             } catch (error) {
                 console.error("Errore logout:", error);
                 showMessage(`Errore logout: ${error.message}`, 'error');
+                closeModal(logoutConfirmModal); // Chiudi il modale di conferma anche in caso di errore
             }
         };
 
