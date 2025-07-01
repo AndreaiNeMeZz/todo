@@ -69,88 +69,66 @@
         document.documentElement.classList.add('dark');
     </script>
 </head>
-<body class="bg-gray-950 text-gray-200"> <!-- Sfondo del corpo più scuro -->
-
-    <div id="app" class="flex h-screen">
-        <!-- Sidebar -->
-        <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col"> <!-- Sidebar più scura, bordo più scuro -->
-            <div class="px-6 py-4 border-b border-gray-800 flex flex-col items-center gap-2"> <!-- Utilizzo flex-col e items-center per centrare verticalmente -->
-                <!-- Immagine sopra il testo, dimensioni leggermente aumentate -->
-                <img src="https://github.com/AndreaiNeMeZz/todo/blob/main/UltraIstinto.gif?raw=true" alt="Logo SuperToDo" class="h-[110px] w-[110px] rounded-full mb-2"> <!-- Aumentata la dimensione e aggiunto margine inferiore -->
-                <h1 class="text-2xl font-bold text-gray-100">SuperGod-ToDo</h1>
+<body class="bg-gray-950 text-gray-200"> <div id="app" class="flex h-screen">
+        <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col"> <div class="px-6 py-4 border-b border-gray-800 flex flex-col items-center gap-2"> <img src="https://github.com/AndreaiNeMeZz/todo/blob/main/UltraIstinto.gif?raw=true" alt="Logo SuperToDo" class="h-[110px] w-[110px] rounded-full mb-2"> <h1 class="text-2xl font-bold text-gray-100">SuperGod-ToDo</h1>
             </div>
             <nav id="project-list" class="flex-1 p-4 space-y-1">
                 <div class="text-center text-gray-500 text-sm mt-4">Caricamento...</div>
             </nav>
-            <div class="p-4 border-t border-gray-800"> <!-- Bordo superiore più scuro -->
-                <button id="add-project-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 hover:bg-gray-700 p-2 rounded-md transition-colors"> <!-- Testo e hover migliorati -->
-                    <span class="material-symbols-outlined">create_new_folder</span>
+            <div class="p-4 border-t border-gray-800"> <button id="add-project-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 hover:bg-gray-700 p-2 rounded-md transition-colors"> <span class="material-symbols-outlined">create_new_folder</span>
                     <span>Nuovo Progetto</span>
                 </button>
-                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 hover:bg-gray-800 opacity-50 hover:text-white p-2 rounded-md transition-colors mt-2">
+                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 hover:bg-gray-800 hover:text-white p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">archive</span>
                     <span id="toggle-archived-projects-text">Mostra Progetti Archiviati</span>
                 </button>
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="flex-1 flex flex-col">
-            <header class="bg-gray-900 border-b border-gray-800 flex items-center justify-between p-4"> <!-- Header più scuro, bordo più scuro -->
-                <div class="flex-1">
+            <header class="bg-gray-900 border-b border-gray-800 flex items-center justify-between p-4"> <div class="flex-1">
                     <h2 id="current-project-title" class="text-xl font-bold text-gray-100"></h2>
                     <div id="filter-buttons" class="flex items-center gap-4 mt-1">
-                        <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-purple-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button> <!-- Accento viola -->
-                        <button data-filter="active" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">checklist_rtl</span><span>Attivi</span></button>
+                        <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-purple-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button> <button data-filter="active" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">checklist_rtl</span><span>Attivi</span></button>
                         <button data-filter="completed" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">task_alt</span><span>Completati</span></button>
                     </div>
                 </div>
-                <!-- Campo di ricerca globale -->
                 <div class="relative ml-4">
                     <input type="text" id="search-input" placeholder="Cerca task..." class="w-48 p-2 pl-10 rounded-md border border-gray-700 bg-gray-700 text-gray-100 focus:ring-2 focus:ring-purple-400 focus:border-purple-500 transition-colors">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
                 </div>
                 <div class="flex items-center gap-4 ml-4">
-                    <button id="add-task-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"> <!-- Pulsante con accento viola -->
-                        <span class="material-symbols-outlined">add</span>
+                    <button id="add-task-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"> <span class="material-symbols-outlined">add</span>
                         <span>Nuovo Task</span>
                     </button>
                 </div>
             </header>
             <div id="task-list-container" class="flex-1 p-6 overflow-y-auto">
-                <!-- I task verranno renderizzati qui -->
-            </div>
+                </div>
         </main>
     </div>
 
-    <!-- Task Modal -->
     <div id="task-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
-        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-lg transform -translate-y-10"> <!-- Sfondo modale più scuro -->
-            <form id="task-form">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-lg transform -translate-y-10"> <form id="task-form">
                 <div class="p-6">
                     <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-100">Nuovo Task</h3>
                     <input type="hidden" id="task-id">
                     <div class="mb-4">
                         <label for="task-title" class="block text-sm font-medium text-gray-300 mb-1">Titolo</label>
-                        <input type="text" id="task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" required> <!-- Input con focus viola -->
-                    </div>
+                        <input type="text" id="task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" required> </div>
                     <div class="mb-4">
                         <label for="task-description" class="block text-sm font-medium text-gray-300 mb-1">Descrizione</p>
-                        <textarea id="task-description" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"></textarea> <!-- Input con focus viola -->
-                    </div>
+                        <textarea id="task-description" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"></textarea> </div>
 
-                    <!-- Sezione Sottotask -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-300 mb-2">Sottotask/Checklist</label>
                         <div id="subtasks-container" class="space-y-2">
-                            <!-- I sottotask verranno aggiunti qui dinamicamente -->
-                        </div>
+                            </div>
                         <button type="button" id="add-subtask-btn" class="mt-2 text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1">
                             <span class="material-symbols-outlined text-base">add_circle</span> Aggiungi Sottotask
                         </button>
                     </div>
 
-                    <!-- Sezione Task Ricorrente -->
                     <div class="mb-4">
                         <label class="inline-flex items-center">
                             <input type="checkbox" id="is-recurring-checkbox" class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-600 focus:ring-purple-500">
@@ -165,20 +143,17 @@
                                     <option value="monthly">Mensile</option>
                                 </select>
                             </div>
-                            <!-- Potremmo aggiungere qui opzioni per intervallo o data di fine in futuro -->
-                        </div>
+                            </div>
                     </div>
 
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="task-due-date" class="block text-sm font-medium text-gray-300 mb-1">Scadenza</label>
-                            <input type="date" id="task-due-date" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus viola -->
-                        </div>
+                            <input type="date" id="task-due-date" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> </div>
                         <div>
                             <label for="task-priority" class="block text-sm font-medium text-gray-300 mb-1">Priorità</label>
-                            <select id="task-priority" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> <!-- Select con focus viola -->
-                                <option value="low">Bassa</option>
+                            <select id="task-priority" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> <option value="low">Bassa</option>
                                 <option value="medium" selected>Media</option>
                                 <option value="high">Alta</option>
                                 <option value="urgent">Urgente</option>
@@ -186,58 +161,44 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
-                    <button type="button" id="cancel-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" id="save-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Task</button> <!-- Pulsante con accento viola -->
-                </div>
+                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <button type="button" id="cancel-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
+                    <button type="submit" id="save-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Task</button> </div>
             </form>
         </div>
     </div>
     
-    <!-- Project Modal -->
     <div id="project-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
-        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10"> <!-- Sfondo modale più scuro -->
-            <form id="project-form">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10"> <form id="project-form">
                 <div class="p-6">
                     <h3 class="text-xl font-bold mb-4 text-gray-100">Nuovo Progetto</h3>
                     <div class="mb-1">
                         <label for="project-name" class="block text-sm font-medium text-gray-300 mb-1">Nome del Progetto</label>
-                        <input type="text" id="project-name" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" required> <!-- Input con focus viola -->
-                    </div>
+                        <input type="text" id="project-name" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" required> </div>
                 </div>
-                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
-                    <button type="button" id="cancel-project-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Crea Progetto</button> <!-- Pulsante con accento viola -->
-                </div>
+                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <button type="button" id="cancel-project-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Crea Progetto</button> </div>
             </form>
         </div>
     </div>
 
-    <!-- Progress Modal -->
     <div id="progress-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
-        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10"> <!-- Sfondo modale più scuro -->
-            <form id="progress-form">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10"> <form id="progress-form">
                 <div class="p-6">
                     <h3 class="text-xl font-bold mb-4 text-gray-100">Aggiorna Progresso Task</h3>
                     <input type="hidden" id="progress-task-id">
                     <div class="mb-4">
                         <label for="progress-task-title" class="block text-sm font-medium text-gray-300 mb-1">Task</label>
-                        <input type="text" id="progress-task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" readonly> <!-- Input con focus viola -->
-                    </div>
+                        <input type="text" id="progress-task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" readonly> </div>
                     <div class="mb-4">
                         <label for="progress-text" class="block text-sm font-medium text-gray-300 mb-1">Nuovo Progresso</label>
-                        <textarea id="progress-text" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" placeholder=""></textarea> <!-- Input con focus viola -->
-                    </div>
+                        <textarea id="progress-text" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" placeholder=""></textarea> </div>
                 </div>
-                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
-                    <button type="button" id="cancel-progress-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" id="save-progress-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento viola -->
-                </div>
+                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <button type="button" id="cancel-progress-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
+                    <button type="submit" id="save-progress-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> </div>
             </form>
         </div>
     </div>
 
-    <!-- Messaggio di Feedback -->
     <div id="feedback-message" class="hidden"></div>
 
     <script type="module">
@@ -288,7 +249,7 @@
         const searchInput = document.getElementById('search-input'); // Nuovo selettore
         const toggleArchivedProjectsBtn = document.getElementById('toggle-archived-projects-btn'); // Nuovo selettore
         const toggleArchivedProjectsText = document.getElementById('toggle-archived-projects-text'); // Nuovo selettore
-        // const viewToggleButtons = document.querySelectorAll('.view-toggle-btn'); // Rimosso
+        const viewToggleButtons = document.querySelectorAll('.view-toggle-btn'); // Rimosso
 
         // Task Modal
         const taskModal = document.getElementById('task-modal');
@@ -369,7 +330,7 @@
                 projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer transition-all duration-200
                     ${isActive
                         ? 'bg-gray-700 shadow-md border-l-[8px] border-purple-400' // Sfondo leggermente più chiaro per l'attivo, con bordo e ombra
-                        : 'bg-gray-800' // Sfondo più scuro per l'inattivo
+                        : 'bg-gray-800 border border-gray-700' // Sfondo più scuro per l'inattivo, con bordo per visibilità
                     }
                     ${isActive ? 'hover:bg-gray-600' : 'hover:bg-gray-700'} // Effetto hover: più chiaro per l'attivo, normale per l'inattivo
                 `;
@@ -408,25 +369,23 @@
                 // dashboardContainerEl.classList.add('hidden'); // Rimosso
                 // Aggiorna lo stato dei pulsanti di vista
                 // viewToggleButtons.forEach(btn => { // Rimosso
+                //     btn.classList.remove('active', 'text-purple-400');
+                //     btn.classList.add('text-gray-400', 'hover:text-gray-200');
                 //     if (btn.dataset.view === 'tasks') {
                 //         btn.classList.add('active', 'text-purple-400');
                 //         btn.classList.remove('text-gray-400', 'hover:text-gray-200');
-                //     } else {
-                //         btn.classList.remove('active', 'text-purple-400');
-                //         btn.classList.add('text-gray-400', 'hover:text-gray-200');
                 //     }
                 // });
             } else { // dashboard
                 // taskListContainerEl.classList.add('hidden'); // Rimosso
                 // dashboardContainerEl.classList.remove('hidden'); // Rimosso
-                 // Aggiorna lo stato dei pulsanti di vista
+                // Aggiorna lo stato dei pulsanti di vista
                 // viewToggleButtons.forEach(btn => { // Rimosso
+                //     btn.classList.remove('active', 'text-purple-400');
+                //     btn.classList.add('text-gray-400', 'hover:text-gray-200');
                 //     if (btn.dataset.view === 'dashboard') {
                 //         btn.classList.add('active', 'text-purple-400');
                 //         btn.classList.remove('text-gray-400', 'hover:text-gray-200');
-                //     } else {
-                //         btn.classList.remove('active', 'text-purple-400');
-                //         btn.classList.add('text-gray-400', 'hover:text-gray-200');
                 //     }
                 // });
                 // renderDashboard(); // Rimosso
@@ -608,8 +567,7 @@
                         <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title} ${recurringIcon}</p>
                         ${descriptionHTML}
                         ${fullProgressHistoryHTML}
-                        ${subtasksHTML} <!-- Inserisci i sottotask qui -->
-                        <div class="flex items-center gap-4 mt-2 text-sm text-gray-400">
+                        ${subtasksHTML} <div class="flex items-center gap-4 mt-2 text-sm text-gray-400">
                             ${task.dueDate ? `<span>Scadenza: ${new Date(task.dueDate).toLocaleDateString('it-IT', {timeZone: 'UTC'})}</span>` : ''}
                             <div class="flex items-center gap-2">
                                 <div class="priority-dot ${priorityMap[task.priority].color}"></div>
@@ -1055,20 +1013,18 @@
                         createdAt: new Date()
                     });
                     showMessage('Progetto creato con successo!', 'success');
-                    // Sposta closeModal qui per assicurare che si chiuda sempre
-                    closeModal(projectModal); 
-                    // Se stavamo visualizzando progetti archiviati, torniamo ai progetti attivi
-                    if (state.showArchivedProjects) {
-                        state.showArchivedProjects = false;
-                        state.activeProjectId = null; // Deseleziona per forzare il re-render e selezione del nuovo progetto
-                        render();
-                    }
                 }
             } catch (error) {
                 console.error("Errore nella creazione del progetto:", error);
                 showMessage('Errore nella creazione del progetto.', 'error');
-                // Sposta closeModal qui per assicurare che si chiuda anche in caso di errore
+            } finally { // Il closeModal viene sempre chiamato
                 closeModal(projectModal); 
+                // Se stavamo visualizzando progetti archiviati, torniamo ai progetti attivi
+                if (state.showArchivedProjects) {
+                    state.showArchivedProjects = false;
+                    state.activeProjectId = null; // Deseleziona per forzare il re-render e selezione del nuovo progetto
+                    render();
+                }
             }
         });
         
