@@ -17,7 +17,7 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6); /* Sfondo modale leggermente più scuro */
             transition: opacity 0.3s ease;
         }
         .modal-content {
@@ -33,28 +33,24 @@
         }
     </style>
     <script>
-        // Applica il tema scuro all'avvio se salvato o preferito dal sistema
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        // Imposta sempre il tema scuro all'avvio
+        document.documentElement.classList.add('dark');
     </script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<body class="bg-gray-950 text-gray-200"> <!-- Sfondo del corpo più scuro -->
 
     <div id="app" class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-                <span class="material-symbols-outlined text-teal-600 dark:text-teal-400">task_alt</span>
-                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Super-ToDo</h1>
+        <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col"> <!-- Sidebar più scura, bordo più scuro -->
+            <div class="px-6 py-4 border-b border-gray-800 flex items-center gap-2"> <!-- Bordo inferiore più scuro -->
+                <span class="material-symbols-outlined text-emerald-400">task_alt</span> <!-- Icona con accento verde smeraldo -->
+                <h1 class="text-2xl font-bold text-gray-100">Super-ToDo</h1>
             </div>
             <nav id="project-list" class="flex-1 p-4 space-y-1">
-                <div class="text-center text-gray-400 dark:text-gray-500 text-sm mt-4">Caricamento...</div>
+                <div class="text-center text-gray-500 text-sm mt-4">Caricamento...</div>
             </nav>
-            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
-                <button id="add-project-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+            <div class="p-4 border-t border-gray-800"> <!-- Bordo superiore più scuro -->
+                <button id="add-project-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 hover:bg-gray-700 p-2 rounded-md transition-colors"> <!-- Testo e hover migliorati -->
                     <span class="material-symbols-outlined">create_new_folder</span>
                     <span>Nuovo Progetto</span>
                 </button>
@@ -63,59 +59,51 @@
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col">
-            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between p-4">
+            <header class="bg-gray-900 border-b border-gray-800 flex items-center justify-between p-4"> <!-- Header più scuro, bordo più scuro -->
                 <div>
-                    <h2 id="current-project-title" class="text-xl font-bold text-gray-800 dark:text-gray-100"></h2>
+                    <h2 id="current-project-title" class="text-xl font-bold text-gray-100"></h2>
                     <div id="filter-buttons" class="flex items-center gap-4 mt-1">
-                         <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-teal-600 dark:text-teal-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button>
-                         <button data-filter="active" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"><span class="material-symbols-outlined text-base">checklist_rtl</span><span>Attivi</span></button>
-                         <button data-filter="completed" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"><span class="material-symbols-outlined text-base">task_alt</span><span>Completati</span></button>
+                        <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-emerald-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button> <!-- Accento verde smeraldo -->
+                        <button data-filter="active" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">checklist_rtl</span><span>Attivi</span></button>
+                        <button data-filter="completed" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">task_alt</span><span>Completati</span></button>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <div class="flex items-center p-1 rounded-full bg-gray-200 dark:bg-gray-700">
-                        <button id="theme-toggle-light" class="p-1 rounded-full text-gray-700 dark:text-gray-400">
-                            <span class="material-symbols-outlined text-base">light_mode</span>
-                        </button>
-                        <button id="theme-toggle-dark" class="p-1 rounded-full text-gray-700 dark:text-gray-400">
-                            <span class="material-symbols-outlined text-base">dark_mode</span>
-                        </button>
-                    </div>
-                    <button id="add-task-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <button id="add-task-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"> <!-- Pulsante con accento verde smeraldo -->
                         <span class="material-symbols-outlined">add</span>
                         <span>Nuovo Task</span>
                     </button>
                 </div>
             </header>
             <div id="task-list-container" class="flex-1 p-6 overflow-y-auto">
-                <!-- Tasks will be rendered here -->
+                <!-- I task verranno renderizzati qui -->
             </div>
         </main>
     </div>
 
     <!-- Task Modal -->
     <div id="task-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
-        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg transform -translate-y-10">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-lg transform -translate-y-10"> <!-- Sfondo modale più scuro -->
             <form id="task-form">
                 <div class="p-6">
-                    <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuovo Task</h3>
+                    <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-100">Nuovo Task</h3>
                     <input type="hidden" id="task-id">
                     <div class="mb-4">
-                        <label for="task-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titolo</label>
-                        <input type="text" id="task-title" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors" required>
+                        <label for="task-title" class="block text-sm font-medium text-gray-300 mb-1">Titolo</label>
+                        <input type="text" id="task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus verde smeraldo -->
                     </div>
                     <div class="mb-4">
-                        <label for="task-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descrizione</p>
-                        <textarea id="task-description" rows="3" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors"></textarea>
+                        <label for="task-description" class="block text-sm font-medium text-gray-300 mb-1">Descrizione</p>
+                        <textarea id="task-description" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"></textarea> <!-- Input con focus verde smeraldo -->
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label for="task-due-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scadenza</label>
-                            <input type="date" id="task-due-date" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors">
+                            <label for="task-due-date" class="block text-sm font-medium text-gray-300 mb-1">Scadenza</label>
+                            <input type="date" id="task-due-date" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus verde smeraldo -->
                         </div>
                         <div>
-                            <label for="task-priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priorità</label>
-                            <select id="task-priority" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors">
+                            <label for="task-priority" class="block text-sm font-medium text-gray-300 mb-1">Priorità</label>
+                            <select id="task-priority" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"> <!-- Select con focus verde smeraldo -->
                                 <option value="low">Bassa</option>
                                 <option value="medium" selected>Media</option>
                                 <option value="high">Alta</option>
@@ -124,9 +112,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg">
-                    <button type="button" id="cancel-btn" class="bg-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-gray-100 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-300 dark:border-gray-600">Annulla</button>
-                    <button type="submit" id="save-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Salva Task</button>
+                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
+                    <button type="button" id="cancel-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
+                    <button type="submit" id="save-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg">Salva Task</button> <!-- Pulsante con accento verde smeraldo -->
                 </div>
             </form>
         </div>
@@ -134,18 +122,42 @@
     
     <!-- Project Modal -->
     <div id="project-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
-        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10"> <!-- Sfondo modale più scuro -->
             <form id="project-form">
                 <div class="p-6">
-                    <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuovo Progetto</h3>
+                    <h3 class="text-xl font-bold mb-4 text-gray-100">Nuovo Progetto</h3>
                     <div class="mb-1">
-                        <label for="project-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome del Progetto</label>
-                        <input type="text" id="project-name" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors" required>
+                        <label for="project-name" class="block text-sm font-medium text-gray-300 mb-1">Nome del Progetto</label>
+                        <input type="text" id="project-name" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors" required> <!-- Input con focus verde smeraldo -->
                     </div>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg">
-                    <button type="button" id="cancel-project-btn" class="bg-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-gray-100 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-300 dark:border-gray-600">Annulla</button>
-                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Crea Progetto</button>
+                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
+                    <button type="button" id="cancel-project-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg">Crea Progetto</button> <!-- Pulsante con accento verde smeraldo -->
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Progress Modal -->
+    <div id="progress-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10"> <!-- Sfondo modale più scuro -->
+            <form id="progress-form">
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-100">Aggiorna Progresso Task</h3>
+                    <input type="hidden" id="progress-task-id">
+                    <div class="mb-4">
+                        <label for="progress-task-title" class="block text-sm font-medium text-gray-300 mb-1">Task</label>
+                        <input type="text" id="progress-task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors" readonly> <!-- Input con focus verde smeraldo -->
+                    </div>
+                    <div class="mb-4">
+                        <label for="progress-text" class="block text-sm font-medium text-gray-300 mb-1">Progresso</label>
+                        <textarea id="progress-text" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors" placeholder="Es: 2 palette su 4 recuperate..."></textarea> <!-- Input con focus verde smeraldo -->
+                    </div>
+                </div>
+                <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
+                    <button type="button" id="cancel-progress-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
+                    <button type="submit" id="save-progress-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento verde smeraldo -->
                 </div>
             </form>
         </div>
@@ -153,21 +165,24 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- INIZIO CONFIGURAZIONE FIREBASE ---
-        const firebaseConfig = {
-  apiKey: "AIzaSyBp9CIqOt69t5NFeIWMB_oUz3afYwhp1Dg",
-  authDomain: "mia-todo-list.firebaseapp.com",
-  projectId: "mia-todo-list",
-  storageBucket: "mia-todo-list.firebasestorage.app",
-  messagingSenderId: "1027762821435",
-  appId: "1:1027762821435:web:319b6c716b3ad43e1f7f1e"
-};
+        // La configurazione di Firebase viene caricata dinamicamente dall'ambiente
+        let firebaseConfig = {};
+        try {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
+        } catch (e) {
+            console.error("Errore nel parsing della configurazione Firebase:", e);
+            // Fallback a un oggetto vuoto se il parsing fallisce
+            firebaseConfig = {}; 
+        }
         // --- FINE CONFIGURAZIONE FIREBASE ---
 
-        // --- STATE MANAGEMENT ---
+        // --- GESTIONE DELLO STATO ---
         let state = {
             projects: [],
             tasks: [],
@@ -176,48 +191,55 @@
             fb_db: null,
             fb_auth: null,
             userId: null,
-            appId: 'supertodoai-lavoro', // ID statico per il deploy
+            // L'ID dell'app viene caricato dinamicamente dall'ambiente
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id', 
             projectsUnsubscribe: () => {},
             tasksUnsubscribe: () => {},
         };
 
-        // --- DOM SELECTORS ---
+        // --- SELETTORI DOM ---
         const projectListEl = document.getElementById('project-list');
         const taskListContainerEl = document.getElementById('task-list-container');
         const currentProjectTitleEl = document.getElementById('current-project-title');
         const addTaskBtn = document.getElementById('add-task-btn');
         const filterButtons = document.querySelectorAll('.filter-btn');
         const addProjectBtn = document.getElementById('add-project-btn');
-        const themeToggleLight = document.getElementById('theme-toggle-light');
-        const themeToggleDark = document.getElementById('theme-toggle-dark');
-        
+
         // Task Modal
         const taskModal = document.getElementById('task-modal');
         const taskForm = document.getElementById('task-form');
         const cancelBtn = document.getElementById('cancel-btn');
         const taskTitleInput = document.getElementById('task-title');
         const taskDescriptionInput = document.getElementById('task-description');
-        
+
         // Project Modal
         const projectModal = document.getElementById('project-modal');
         const projectForm = document.getElementById('project-form');
         const cancelProjectBtn = document.getElementById('cancel-project-btn');
 
-        // --- RENDER FUNCTIONS ---
+        // Progress Modal (Nuovi selettori)
+        const progressModal = document.getElementById('progress-modal');
+        const progressForm = document.getElementById('progress-form');
+        const cancelProgressBtn = document.getElementById('cancel-progress-btn');
+        const progressTaskIdInput = document.getElementById('progress-task-id');
+        const progressTaskTitleInput = document.getElementById('progress-task-title');
+        const progressTextInput = document.getElementById('progress-text');
+
+        // --- FUNZIONI DI RENDERIZZAZIONE ---
         const renderProjects = () => {
             if (state.projects.length === 0) {
-                 projectListEl.innerHTML = `<div class="text-center text-gray-400 dark:text-gray-500 text-sm p-4">Nessun progetto. Creane uno!</div>`;
+                projectListEl.innerHTML = `<div class="text-center text-gray-400 text-sm p-4">Nessun progetto. Creane uno!</div>`;
             } else {
-                 projectListEl.innerHTML = '';
+                projectListEl.innerHTML = '';
             }
-           
+            
             state.projects.forEach(project => {
                 const isActive = project.id === state.activeProjectId;
                 const projectWrapper = document.createElement('div');
-                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-teal-100 dark:bg-teal-900/50' : 'hover:bg-gray-200 dark:hover:bg-gray-700'}`;
+                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-emerald-900/50' : 'hover:bg-gray-700'}`; <!-- Sfondo attivo e hover aggiornati -->
                 
                 const nameSpan = document.createElement('span');
-                nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-teal-800 dark:text-teal-300' : 'text-gray-600 dark:text-gray-400'}`;
+                nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-emerald-300' : 'text-gray-300'}`; <!-- Colore testo attivo e inattivo aggiornati -->
                 nameSpan.textContent = project.name;
                 nameSpan.addEventListener('click', () => {
                     state.activeProjectId = project.id;
@@ -240,7 +262,7 @@
             
             if (!activeProject) {
                 currentProjectTitleEl.textContent = 'Nessun Progetto';
-                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 mt-10">Crea o seleziona un progetto per iniziare.</div>`;
+                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 text-sm mt-10">Crea o seleziona un progetto per iniziare.</div>`;
                 addTaskBtn.disabled = true;
                 return;
             }
@@ -250,15 +272,25 @@
             
             let tasksToRender = state.tasks.filter(task => task.projectId === state.activeProjectId);
 
-            if (state.activeFilter === 'active') {
-                tasksToRender = tasksToRender.filter(task => !task.completed);
-            } else if (state.activeFilter === 'completed') {
-                tasksToRender = tasksToRender.filter(task => task.completed);
-            }
+            // Definisci un mapping per le priorità per l'ordinamento
+            const priorityOrder = {
+                'urgent': 4,
+                'high': 3,
+                'medium': 2,
+                'low': 1
+            };
+
+            // Ordina i task in base alla priorità (decrescente)
+            tasksToRender.sort((a, b) => {
+                const priorityA = priorityOrder[a.priority] || 0;
+                const priorityB = priorityOrder[b.priority] || 0;
+                return priorityB - priorityA; // Ordine decrescente (più urgente in alto)
+            });
+
 
             taskListContainerEl.innerHTML = '';
             if (tasksToRender.length === 0) {
-                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 mt-10">Nessun task qui. Aggiungine uno!</div>`;
+                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 text-sm mt-10">Nessun task qui. Aggiungine uno!</div>`;
                 return;
             }
 
@@ -271,16 +303,31 @@
                 };
 
                 const taskEl = document.createElement('div');
-                taskEl.className = 'task-item bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex items-start gap-4 mb-3 hover:shadow-md transition-shadow duration-200';
+                taskEl.className = 'task-item bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 flex items-start gap-4 mb-3 hover:shadow-lg transition-shadow duration-200'; // Ombra leggermente più pronunciata all'hover
                 
-                const descriptionHTML = task.description ? `<div class="text-sm text-gray-600 dark:text-gray-400">${task.description}</div>` : '';
+                const descriptionHTML = task.description ? `<div class="text-sm text-gray-400">${task.description}</div>` : '';
+                
+                // Modifiche qui per rendere il progresso più visibile
+                const progressHTML = task.progress ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${task.progress}</div>` : ''; // Testo più scuro e più grassetto
+                
+                // Formatta la data e l'ora dell'ultimo aggiornamento
+                let lastUpdatedHTML = '';
+                if (task.lastUpdated && task.lastUpdated.toDate) { // Controlla se è un oggetto Timestamp di Firebase
+                    const date = task.lastUpdated.toDate();
+                    lastUpdatedHTML = `<div class="text-xs text-gray-500 mt-1">Aggiornato: ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT')}</div>`;
+                } else if (task.lastUpdated) { // Se è una stringa o altro formato
+                    const date = new Date(task.lastUpdated);
+                    lastUpdatedHTML = `<div class="text-xs text-gray-500 mt-1">Aggiornato: ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT')}</div>`;
+                }
 
                 taskEl.innerHTML = `
-                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-300 dark:border-gray-600 text-teal-600 focus:ring-teal-500" ${task.completed ? 'checked' : ''}>
+                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500"> <!-- Checkbox con accento verde smeraldo -->
                     <div class="flex-1">
-                        <p class="font-medium ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-100'}">${task.title}</p>
+                        <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title}</p>
                         ${descriptionHTML}
-                        <div class="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        ${progressHTML}
+                        ${lastUpdatedHTML} <!-- Inserisci l'orario dell'ultimo aggiornamento qui -->
+                        <div class="flex items-center gap-4 mt-2 text-sm text-gray-400">
                             ${task.dueDate ? `<span>Scadenza: ${new Date(task.dueDate).toLocaleDateString('it-IT', {timeZone: 'UTC'})}</span>` : ''}
                             <div class="flex items-center gap-2">
                                 <div class="priority-dot ${priorityMap[task.priority].color}"></div>
@@ -289,8 +336,9 @@
                         </div>
                     </div>
                     <div class="task-actions flex items-center gap-2 opacity-0 transition-opacity">
-                        <button class="edit-btn text-gray-500 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button>
-                        <button class="delete-btn text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">delete</span></button>
+                        <button class="update-progress-btn text-gray-400 hover:text-blue-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">sync</span></button>
+                        <button class="edit-btn text-gray-400 hover:text-emerald-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button> <!-- Icona modifica con accento verde smeraldo -->
+                        <button class="delete-btn text-gray-400 hover:text-red-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </div>
                 `;
                 taskListContainerEl.appendChild(taskEl);
@@ -302,7 +350,7 @@
             renderTasks();
         };
 
-        // --- MODAL LOGIC ---
+        // --- LOGICA MODALE ---
         const openModal = (modalEl) => {
             modalEl.classList.remove('hidden');
             setTimeout(() => {
@@ -334,7 +382,16 @@
             openModal(taskModal);
         };
 
-        // --- EVENT LISTENERS ---
+        // Funzione per aprire il modale del progresso
+        const openProgressModal = (task) => {
+            progressForm.reset();
+            progressTaskIdInput.value = task.id;
+            progressTaskTitleInput.value = task.title; // Titolo del task in sola lettura
+            progressTextInput.value = task.progress || ''; // Progresso attuale
+            openModal(progressModal);
+        };
+
+        // --- LISTENER DI EVENTI ---
         addTaskBtn.addEventListener('click', () => openTaskModal());
         cancelBtn.addEventListener('click', () => closeModal(taskModal));
 
@@ -348,20 +405,40 @@
                 priority: document.getElementById('task-priority').value,
             };
 
-            if (id) { // Editing
+            if (id) { // Modifica
                 const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, id);
                 await updateDoc(taskRef, taskData);
-            } else { // Creating
+            } else { // Creazione
                 const tasksCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`);
                 await addDoc(tasksCollection, {
                     ...taskData,
                     projectId: state.activeProjectId,
                     completed: false,
+                    progress: '', // Inizializza il progresso vuoto per i nuovi task
+                    lastUpdated: new Date(), // Aggiungi il timestamp di creazione
                     createdAt: new Date()
                 });
             }
             closeModal(taskModal);
         });
+
+        // Listener per il nuovo modale del progresso
+        cancelProgressBtn.addEventListener('click', () => closeModal(progressModal));
+        progressForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskId = progressTaskIdInput.value;
+            const newProgress = progressTextInput.value;
+
+            if (taskId) {
+                const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, taskId);
+                await updateDoc(taskRef, { 
+                    progress: newProgress,
+                    lastUpdated: new Date() // Aggiorna il timestamp quando il progresso viene salvato
+                });
+            }
+            closeModal(progressModal);
+        });
+
 
         taskListContainerEl.addEventListener('click', async (e) => {
             const target = e.target.closest('button, input');
@@ -381,15 +458,20 @@
                 const task = state.tasks.find(t => t.id === taskId);
                 if (task) openTaskModal(task);
             }
+            // Nuovo listener per il pulsante Aggiorna Progresso
+            if (target.classList.contains('update-progress-btn')) {
+                const task = state.tasks.find(t => t.id === taskId);
+                if (task) openProgressModal(task);
+            }
         });
 
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
                 state.activeFilter = button.dataset.filter;
-                filterButtons.forEach(btn => btn.classList.remove('active', 'text-teal-600', 'dark:text-teal-400'));
-                filterButtons.forEach(btn => btn.classList.add('text-gray-500', 'dark:text-gray-400', 'hover:text-gray-800', 'dark:hover:text-gray-200'));
-                button.classList.add('active', 'text-teal-600', 'dark:text-teal-400');
-                button.classList.remove('text-gray-500', 'dark:text-gray-400', 'hover:text-gray-800', 'dark:hover:text-gray-200');
+                filterButtons.forEach(btn => btn.classList.remove('active', 'text-emerald-400')); // Rimuovi accento precedente
+                filterButtons.forEach(btn => btn.classList.add('text-gray-400', 'hover:text-gray-200')); // Aggiungi colori inattivi
+                button.classList.add('active', 'text-emerald-400'); // Aggiungi accento attivo
+                button.classList.remove('text-gray-400', 'hover:text-gray-200'); // Rimuovi colori inattivi
                 renderTasks();
             });
         });
@@ -401,7 +483,7 @@
             e.preventDefault();
             const projectNameInput = document.getElementById('project-name');
             const projectName = projectNameInput.value;
-             if (projectName && projectName.trim() !== '') {
+            if (projectName && projectName.trim() !== '') {
                 const projectsCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`);
                 await addDoc(projectsCollection, {
                     name: projectName.trim(),
@@ -431,32 +513,13 @@
             }
         });
 
-        // --- THEME TOGGLE ---
-        const updateThemeToggle = () => {
-            if (document.documentElement.classList.contains('dark')) {
-                themeToggleDark.classList.add('bg-teal-600', 'text-white');
-                themeToggleLight.classList.remove('bg-teal-600', 'text-white');
-            } else {
-                themeToggleLight.classList.add('bg-teal-600', 'text-white');
-                themeToggleDark.classList.remove('bg-teal-600', 'text-white');
-            }
-        };
-        themeToggleLight.addEventListener('click', () => {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-            updateThemeToggle();
-        });
-        themeToggleDark.addEventListener('click', () => {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-            updateThemeToggle();
-        });
-
-        // --- FIREBASE INITIALIZATION ---
+        // --- INIZIALIZZAZIONE FIREBASE ---
         async function initializeAppAndAuth() {
             try {
-                if (!firebaseConfig || firebaseConfig.apiKey === "INSERISCI_LA_TUA_API_KEY") {
-                   throw new Error("Configurazione Firebase mancante o incompleta. Inserisci le tue credenziali nel file HTML.");
+                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase configuration is missing or empty. Please ensure __firebase_config is provided.");
+                    projectListEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Inizializzazione fallita: Configurazione Firebase mancante.</div>`;
+                    return;
                 }
                 const app = initializeApp(firebaseConfig);
                 state.fb_db = getFirestore(app);
@@ -466,10 +529,23 @@
                     if (user) {
                         state.userId = user.uid;
                         attachFirestoreListeners();
+                    } else {
+                        // Gestisce il caso in cui non ci sia un utente, ad esempio, azzerando lo stato o mostrando un login
+                        console.log("Nessun utente loggato.");
+                        state.projects = [];
+                        state.tasks = [];
+                        state.activeProjectId = null;
+                        render();
+                        projectListEl.innerHTML = `<div class="text-center text-gray-400 text-sm mt-4">Accedi per vedere i tuoi progetti.</div>`;
                     }
                 });
                 
-                await signInAnonymously(state.fb_auth);
+                // Usa __initial_auth_token se disponibile, altrimenti accedi in modo anonimo
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(state.fb_auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(state.fb_auth);
+                }
 
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
@@ -478,35 +554,37 @@
         }
 
         function attachFirestoreListeners() {
-            if (!state.userId) return;
+            if (!state.userId) {
+                console.warn("Tentativo di allegare listener Firestore senza userId.");
+                return;
+            }
 
-            // Detach old listeners if they exist
+            // Scollega i vecchi listener se esistono per prevenire perdite di memoria e chiamate duplicate
             state.projectsUnsubscribe();
             state.tasksUnsubscribe();
 
             const projectsCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`);
             state.projectsUnsubscribe = onSnapshot(projectsCollection, (snapshot) => {
                 state.projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                state.projects.sort((a,b) => a.createdAt?.toMillis() - b.createdAt?.toMillis());
+                state.projects.sort((a,b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0)); // Assicurati che createdAt sia gestito in modo sicuro
                 
                 if (state.activeProjectId === null && state.projects.length > 0) {
                     state.activeProjectId = state.projects[0].id;
                 } else if (!state.projects.some(p => p.id === state.activeProjectId)) {
+                    // Se il progetto attivo è stato eliminato, seleziona il primo o null
                     state.activeProjectId = state.projects.length > 0 ? state.projects[0].id : null;
                 }
                 render();
+            }, (error) => {
+                console.error("Errore nel recupero dei progetti:", error);
+                projectListEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Errore nel caricamento dei progetti.</div>`;
             });
 
             const tasksCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`);
             state.tasksUnsubscribe = onSnapshot(tasksCollection, (snapshot) => {
                 state.tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderTasks();
+            }, (error) => {
+                console.error("Errore nel recupero dei task:", error);
+                taskListContainerEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Errore nel caricamento dei task.</div>`;
             });
-        }
-
-        // --- INITIAL RENDER ---
-        updateThemeToggle();
-        initializeAppAndAuth();
-    </script>
-</body>
-</html>
