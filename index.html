@@ -169,22 +169,14 @@
         import { getFirestore, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- INIZIO CONFIGURAZIONE FIREBASE ---
-        // La configurazione di Firebase viene caricata dinamicamente dall'ambiente
-        let firebaseConfig = {apiKey: "AIzaSyBp9CIqOt69t5NFeIWMB_oUz3afYwhp1Dg",
-  authDomain: "mia-todo-list.firebaseapp.com",
-  projectId: "mia-todo-list",
-  storageBucket: "mia-todo-list.firebasestorage.app",
-  messagingSenderId: "1027762821435",
-  appId: "1:1027762821435:web:319b6c716b3ad43e1f7f1e"};
-        try {
-            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                firebaseConfig = JSON.parse(__firebase_config);
-            }
-        } catch (e) {
-            console.error("Errore nel parsing della configurazione Firebase:", e);
-            // Fallback a un oggetto vuoto se il parsing fallisce
-            firebaseConfig = {}; 
-        }
+        let firebaseConfig = {
+            apiKey: "AIzaSyBp9CIqOt69t5NFeIWMB_oUz3afYwhp1Dg",
+            authDomain: "mia-todo-list.firebaseapp.com",
+            projectId: "mia-todo-list",
+            storageBucket: "mia-todo-list.firebasestorage.app",
+            messagingSenderId: "1027762821435",
+            appId: "1:1027762821435:web:319b6c716b3ad43e1f7f1e"
+        };
         // --- FINE CONFIGURAZIONE FIREBASE ---
 
         // --- GESTIONE DELLO STATO ---
@@ -196,8 +188,8 @@
             fb_db: null,
             fb_auth: null,
             userId: null,
-            // L'ID dell'app viene caricato dinamicamente dall'ambiente
-            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id', 
+            // L'ID dell'app è ora preso direttamente da firebaseConfig
+            appId: firebaseConfig.appId, 
             projectsUnsubscribe: () => {},
             tasksUnsubscribe: () => {},
         };
@@ -241,10 +233,10 @@
             state.projects.forEach(project => {
                 const isActive = project.id === state.activeProjectId;
                 const projectWrapper = document.createElement('div');
-                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-emerald-900/50' : 'hover:bg-gray-700'}`; <!-- Sfondo attivo e hover aggiornati -->
+                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-emerald-900/50' : 'hover:bg-gray-700'}`; /* Sfondo attivo e hover aggiornati */
                 
                 const nameSpan = document.createElement('span');
-                nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-emerald-300' : 'text-gray-300'}`; <!-- Colore testo attivo e inattivo aggiornati -->
+                nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-emerald-300' : 'text-gray-300'}`; /* Colore testo attivo e inattivo aggiornati */
                 nameSpan.textContent = project.name;
                 nameSpan.addEventListener('click', () => {
                     state.activeProjectId = project.id;
@@ -308,12 +300,12 @@
                 };
 
                 const taskEl = document.createElement('div');
-                taskEl.className = 'task-item bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 flex items-start gap-4 mb-3 hover:shadow-lg transition-shadow duration-200'; // Ombra leggermente più pronunciata all'hover
+                taskEl.className = 'task-item bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 flex items-start gap-4 mb-3 hover:shadow-lg transition-shadow duration-200'; /* Ombra leggermente più pronunciata all'hover */
                 
                 const descriptionHTML = task.description ? `<div class="text-sm text-gray-400">${task.description}</div>` : '';
                 
                 // Modifiche qui per rendere il progresso più visibile
-                const progressHTML = task.progress ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${task.progress}</div>` : ''; // Testo più scuro e più grassetto
+                const progressHTML = task.progress ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${task.progress}</div>` : ''; /* Testo più scuro e più grassetto */
                 
                 // Formatta la data e l'ora dell'ultimo aggiornamento
                 let lastUpdatedHTML = '';
@@ -326,7 +318,7 @@
                 }
 
                 taskEl.innerHTML = `
-                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500"> <!-- Checkbox con accento verde smeraldo -->
+                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500"> /* Checkbox con accento verde smeraldo */
                     <div class="flex-1">
                         <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title}</p>
                         ${descriptionHTML}
@@ -342,7 +334,7 @@
                     </div>
                     <div class="task-actions flex items-center gap-2 opacity-0 transition-opacity">
                         <button class="update-progress-btn text-gray-400 hover:text-blue-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">sync</span></button>
-                        <button class="edit-btn text-gray-400 hover:text-emerald-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button> <!-- Icona modifica con accento verde smeraldo -->
+                        <button class="edit-btn text-gray-400 hover:text-emerald-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button> /* Icona modifica con accento verde smeraldo */
                         <button class="delete-btn text-gray-400 hover:text-red-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </div>
                 `;
@@ -391,8 +383,8 @@
         const openProgressModal = (task) => {
             progressForm.reset();
             progressTaskIdInput.value = task.id;
-            progressTaskTitleInput.value = task.title; // Titolo del task in sola lettura
-            progressTextInput.value = task.progress || ''; // Progresso attuale
+            progressTaskTitleInput.value = task.title; /* Titolo del task in sola lettura */
+            progressTextInput.value = task.progress || ''; /* Progresso attuale */
             openModal(progressModal);
         };
 
@@ -473,10 +465,10 @@
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
                 state.activeFilter = button.dataset.filter;
-                filterButtons.forEach(btn => btn.classList.remove('active', 'text-emerald-400')); // Rimuovi accento precedente
-                filterButtons.forEach(btn => btn.classList.add('text-gray-400', 'hover:text-gray-200')); // Aggiungi colori inattivi
-                button.classList.add('active', 'text-emerald-400'); // Aggiungi accento attivo
-                button.classList.remove('text-gray-400', 'hover:text-gray-200'); // Rimuovi colori inattivi
+                filterButtons.forEach(btn => btn.classList.remove('active', 'text-emerald-400')); /* Rimuovi accento precedente */
+                filterButtons.forEach(btn => btn.classList.add('text-gray-400', 'hover:text-gray-200')); /* Aggiungi colori inattivi */
+                button.classList.add('active', 'text-emerald-400'); /* Aggiungi accento attivo */
+                button.classList.remove('text-gray-400', 'hover:text-gray-200'); /* Rimuovi colori inattivi */
                 renderTasks();
             });
         });
@@ -521,9 +513,9 @@
         // --- INIZIALIZZAZIONE FIREBASE ---
         async function initializeAppAndAuth() {
             try {
-                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0) {
-                    console.error("Firebase configuration is missing or empty. Please ensure __firebase_config is provided.");
-                    projectListEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Inizializzazione fallita: Configurazione Firebase mancante.</div>`;
+                if (!firebaseConfig || Object.keys(firebaseConfig).length === 0 || !firebaseConfig.apiKey) {
+                    console.error("Firebase configuration is missing or incomplete. Please ensure your Firebase credentials are correctly inserted.");
+                    projectListEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Inizializzazione fallita: Configurazione Firebase mancante o incompleta. Inserisci le tue credenziali.</div>`;
                     return;
                 }
                 const app = initializeApp(firebaseConfig);
@@ -545,12 +537,8 @@
                     }
                 });
                 
-                // Usa __initial_auth_token se disponibile, altrimenti accedi in modo anonimo
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(state.fb_auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(state.fb_auth);
-                }
+                // Su GitHub Pages, ci autentichiamo sempre in modo anonimo
+                await signInAnonymously(state.fb_auth);
 
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
@@ -593,3 +581,10 @@
                 console.error("Errore nel recupero dei task:", error);
                 taskListContainerEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Errore nel caricamento dei task.</div>`;
             });
+        }
+
+        // --- RENDERIZZAZIONE INIZIALIZZAZIONE ---
+        initializeAppAndAuth();
+    </script>
+</body>
+</html>
