@@ -169,6 +169,7 @@
         import { getFirestore, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- INIZIO CONFIGURAZIONE FIREBASE ---
+        // CREDENZIALI FIREBASE AGGIORNATE
         let firebaseConfig = {
             apiKey: "AIzaSyBp9CIqOt69t5NFeIWMB_oUz3afYwhp1Dg",
             authDomain: "mia-todo-list.firebaseapp.com",
@@ -300,12 +301,12 @@
                 };
 
                 const taskEl = document.createElement('div');
-                taskEl.className = 'task-item bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 flex items-start gap-4 mb-3 hover:shadow-lg transition-shadow duration-200'; /* Ombra leggermente più pronunciata all'hover */
+                taskEl.className = 'task-item bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 flex items-start gap-4 mb-3 hover:shadow-lg transition-shadow duration-200'; // Ombra leggermente più pronunciata all'hover
                 
                 const descriptionHTML = task.description ? `<div class="text-sm text-gray-400">${task.description}</div>` : '';
                 
                 // Modifiche qui per rendere il progresso più visibile
-                const progressHTML = task.progress ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${task.progress}</div>` : ''; /* Testo più scuro e più grassetto */
+                const progressHTML = task.progress ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${task.progress}</div>` : ''; // Testo più scuro e più grassetto
                 
                 // Formatta la data e l'ora dell'ultimo aggiornamento
                 let lastUpdatedHTML = '';
@@ -318,12 +319,12 @@
                 }
 
                 taskEl.innerHTML = `
-                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500"> /* Checkbox con accento verde smeraldo */
+                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500">
                     <div class="flex-1">
                         <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title}</p>
                         ${descriptionHTML}
                         ${progressHTML}
-                        ${lastUpdatedHTML} <!-- Inserisci l'orario dell'ultimo aggiornamento qui -->
+                        ${lastUpdatedHTML}
                         <div class="flex items-center gap-4 mt-2 text-sm text-gray-400">
                             ${task.dueDate ? `<span>Scadenza: ${new Date(task.dueDate).toLocaleDateString('it-IT', {timeZone: 'UTC'})}</span>` : ''}
                             <div class="flex items-center gap-2">
@@ -334,7 +335,7 @@
                     </div>
                     <div class="task-actions flex items-center gap-2 opacity-0 transition-opacity">
                         <button class="update-progress-btn text-gray-400 hover:text-blue-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">sync</span></button>
-                        <button class="edit-btn text-gray-400 hover:text-emerald-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button> /* Icona modifica con accento verde smeraldo */
+                        <button class="edit-btn text-gray-400 hover:text-emerald-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button>
                         <button class="delete-btn text-gray-400 hover:text-red-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </div>
                 `;
@@ -383,8 +384,8 @@
         const openProgressModal = (task) => {
             progressForm.reset();
             progressTaskIdInput.value = task.id;
-            progressTaskTitleInput.value = task.title; /* Titolo del task in sola lettura */
-            progressTextInput.value = task.progress || ''; /* Progresso attuale */
+            progressTaskTitleInput.value = task.title; // Titolo del task in sola lettura
+            progressTextInput.value = task.progress || ''; // Progresso attuale
             openModal(progressModal);
         };
 
@@ -465,10 +466,10 @@
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
                 state.activeFilter = button.dataset.filter;
-                filterButtons.forEach(btn => btn.classList.remove('active', 'text-emerald-400')); /* Rimuovi accento precedente */
-                filterButtons.forEach(btn => btn.classList.add('text-gray-400', 'hover:text-gray-200')); /* Aggiungi colori inattivi */
-                button.classList.add('active', 'text-emerald-400'); /* Aggiungi accento attivo */
-                button.classList.remove('text-gray-400', 'hover:text-gray-200'); /* Rimuovi colori inattivi */
+                filterButtons.forEach(btn => btn.classList.remove('active', 'text-emerald-400'));
+                filterButtons.forEach(btn => btn.classList.add('text-gray-400', 'hover:text-gray-200'));
+                button.classList.add('active', 'text-emerald-400');
+                button.classList.remove('text-gray-400', 'hover:text-gray-200');
                 renderTasks();
             });
         });
