@@ -1150,6 +1150,9 @@
                 return;
             }
 
+            // Reset più robusto di activeProjectId all'inizio del listener
+            state.activeProjectId = null; 
+
             // Scollega i vecchi listener se esistono per prevenire perdite di memoria e chiamate duplicate
             state.projectsUnsubscribe();
             state.tasksUnsubscribe();
@@ -1159,25 +1162,14 @@
                 state.projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 state.projects.sort((a,b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0)); // Assicurati che createdAt sia gestito in modo sicuro
                 
-                // Se il progetto attivo è stato archiviato o eliminato, resetta la selezione
-                if (state.activeProjectId && !state.projects.some(p => p.id === state.activeProjectId && p.archived === state.showArchivedProjects)) {
-                    state.activeProjectId = null;
-                }
-                if (state.activeProjectId === null && state.projects.length > 0 && !state.showArchivedProjects) {
-                    // Se non c'è un progetto attivo e non stiamo mostrando archiviati, seleziona il primo non archiviato
-                    const firstActiveProject = state.projects.find(p => !p.archived);
-                    if (firstActiveProject) {
-                        state.activeProjectId = firstActiveProject.id;
+                // Se non c'è un progetto attivo, o il progetto attivo non esiste più nella lista corrente
+                // o non corrisponde alla vista archiviata/non archiviata, seleziona il primo progetto valido
+                if (!state.activeProjectId || !state.projects.some(p => p.id === state.activeProjectId && p.archived === state.showArchivedProjects)) {
+                    const projectsInCurrentView = state.projects.filter(p => p.archived === state.showArchivedProjects);
+                    if (projectsInCurrentView.length > 0) {
+                        state.activeProjectId = projectsInCurrentView[0].id;
                     } else {
-                        state.activeProjectId = null; // Nessun progetto attivo da selezionare
-                    }
-                } else if (state.activeProjectId === null && state.projects.length > 0 && state.showArchivedProjects) {
-                     // Se non c'è un progetto attivo e stiamo mostrando archiviati, seleziona il primo archiviato
-                    const firstArchivedProject = state.projects.find(p => p.archived);
-                    if (firstArchivedProject) {
-                        state.activeProjectId = firstArchivedProject.id;
-                    } else {
-                        state.activeProjectId = null; // Nessun progetto archiviato da selezionare
+                        state.activeProjectId = null; // Nessun progetto da selezionare nella vista corrente
                     }
                 }
 
