@@ -157,13 +157,14 @@
         import { getFirestore, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- INIZIO CONFIGURAZIONE FIREBASE ---
+        // IMPORTANTE: Sostituisci questo oggetto con la configurazione del tuo nuovo progetto Firebase!
         const firebaseConfig = {
-            apiKey: "AIzaSyDhvmzfbnJODSHQ6gfGCodw3u9882IHHhg",
-            authDomain: "supertodoai-lavoro.firebaseapp.com",
-            projectId: "supertodoai-lavoro",
-            storageBucket: "supertodoai-lavoro.appspot.com",
-            messagingSenderId: "683403216391",
-            appId: "1:683403216391:web:f34718dadef6a2e2bf0ca2"
+            apiKey: "INSERISCI_LA_TUA_API_KEY",
+            authDomain: "IL-TUO-PROGETTO.firebaseapp.com",
+            projectId: "IL-TUO-PROGETTO-ID",
+            storageBucket: "IL-TUO-PROGETTO.appspot.com",
+            messagingSenderId: "IL_TUO_SENDER_ID",
+            appId: "LA_TUA_APP_ID"
         };
         // --- FINE CONFIGURAZIONE FIREBASE ---
 
@@ -455,8 +456,8 @@
         // --- FIREBASE INITIALIZATION ---
         async function initializeAppAndAuth() {
             try {
-                if (!firebaseConfig || !firebaseConfig.apiKey) {
-                   throw new Error("Configurazione Firebase mancante o incompleta.");
+                if (!firebaseConfig || firebaseConfig.apiKey === "INSERISCI_LA_TUA_API_KEY") {
+                   throw new Error("Configurazione Firebase mancante o incompleta. Inserisci le tue credenziali nel file HTML.");
                 }
                 const app = initializeApp(firebaseConfig);
                 state.fb_db = getFirestore(app);
