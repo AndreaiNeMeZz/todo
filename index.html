@@ -79,6 +79,10 @@
                 <img src="https://github.com/AndreaiNeMeZz/todo/blob/main/UltraIstinto.gif?raw=true" alt="Logo SuperToDo" class="h-[110px] w-[110px] rounded-full mb-2"> <!-- Aumentata la dimensione e aggiunto margine inferiore -->
                 <h1 class="text-2xl font-bold text-gray-100">SuperGod-ToDo</h1>
             </div>
+            <!-- Informazioni utente loggato -->
+            <div id="user-info-display" class="px-6 py-2 border-b border-gray-800 text-center hidden">
+                <!-- Contenuto dinamico: email e foto profilo -->
+            </div>
             <nav id="project-list" class="flex-1 p-4 space-y-1">
                 <div class="text-center text-gray-500 text-sm mt-4">Caricamento...</div>
             </nav>
@@ -376,6 +380,7 @@
         const googleLoginBtn = document.getElementById('google-login-btn');
         const authFormToggles = document.querySelectorAll('.auth-form-toggle');
         const logoutBtn = document.getElementById('logout-btn');
+        const userInfoDisplay = document.getElementById('user-info-display'); // Nuovo selettore
 
 
         // --- FUNZIONI DI UTILITÀ ---
@@ -1273,12 +1278,25 @@
                     if (user) {
                         state.userId = user.uid;
                         state.isLoggedIn = true;
+                        // Mostra le informazioni utente
+                        userInfoDisplay.innerHTML = `
+                            <div class="flex items-center justify-center gap-2">
+                                ${user.photoURL ? `<img src="${user.photoURL}" alt="Foto profilo" class="h-8 w-8 rounded-full">` : `<span class="material-symbols-outlined text-purple-400">account_circle</span>`}
+                                <span class="text-sm text-gray-300">${user.email || user.displayName || 'Utente'}</span>
+                            </div>
+                        `;
+                        userInfoDisplay.classList.remove('hidden');
+
                         // Chiudi il modale di autenticazione se aperto
                         closeModal(authModal); 
                         attachFirestoreListeners();
                     } else {
                         state.userId = null;
                         state.isLoggedIn = false;
+                        // Nascondi le informazioni utente
+                        userInfoDisplay.innerHTML = '';
+                        userInfoDisplay.classList.add('hidden');
+
                         // Resetta i dati e mostra il modale di autenticazione se non loggato
                         state.projects = [];
                         state.tasks = [];
@@ -1294,7 +1312,7 @@
 
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
-                projectListEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Inizializzazione fallita. Controlla la configurazione di Firebase e le regole del database.</div>`;
+                projectListEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Inizializzazione fallita: Controlla la configurazione di Firebase e le regole del database.</div>`;
             }
         }
 
