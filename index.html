@@ -52,7 +52,7 @@
             transform: translateY(20px);
         }
         #feedback-message.show {
-            opacity: 1;
+            opacity: 0.5;
             transform: translateY(0);
         }
         #feedback-message.success {
@@ -1150,9 +1150,6 @@
                 return;
             }
 
-            // Reset più robusto di activeProjectId all'inizio del listener
-            state.activeProjectId = null; 
-
             // Scollega i vecchi listener se esistono per prevenire perdite di memoria e chiamate duplicate
             state.projectsUnsubscribe();
             state.tasksUnsubscribe();
@@ -1162,9 +1159,13 @@
                 state.projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 state.projects.sort((a,b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0)); // Assicurati che createdAt sia gestito in modo sicuro
                 
-                // Se non c'è un progetto attivo, o il progetto attivo non esiste più nella lista corrente
-                // o non corrisponde alla vista archiviata/non archiviata, seleziona il primo progetto valido
-                if (!state.activeProjectId || !state.projects.some(p => p.id === state.activeProjectId && p.archived === state.showArchivedProjects)) {
+                // **Logica di selezione del progetto attivo più robusta:**
+                // 1. Controlla se il progetto attivo corrente esiste ancora e corrisponde alla vista (attiva/archiviata).
+                const currentActiveProjectStillValid = state.activeProjectId && 
+                                                      state.projects.some(p => p.id === state.activeProjectId && p.archived === state.showArchivedProjects);
+
+                if (!currentActiveProjectStillValid) {
+                    // 2. Se il progetto attivo non è più valido, prova a selezionare il primo progetto nella vista corrente.
                     const projectsInCurrentView = state.projects.filter(p => p.archived === state.showArchivedProjects);
                     if (projectsInCurrentView.length > 0) {
                         state.activeProjectId = projectsInCurrentView[0].id;
