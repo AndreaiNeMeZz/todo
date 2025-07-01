@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SuperToDoAI - Versione Semplificata</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+        .priority-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .task-item:hover .task-actions {
+            opacity: 1;
+        }
+    </style>
+    <script>
+        // Applica il tema scuro all'avvio se salvato o preferito dal sistema
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <div id="app" class="flex h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-100 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                <span class="material-symbols-outlined text-teal-600 dark:text-teal-400">task_alt</span>
+                <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-100">Super-ToDo</h1>
+            </div>
+            <nav id="project-list" class="flex-1 p-4 space-y-1">
+                <div class="text-center text-gray-400 dark:text-gray-500 text-sm mt-4">Caricamento...</div>
+            </nav>
+            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                <button id="add-project-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
+                    <span class="material-symbols-outlined">create_new_folder</span>
+                    <span>Nuovo Progetto</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col">
+            <header class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between p-4">
+                <div>
+                    <h2 id="current-project-title" class="text-xl font-bold text-gray-800 dark:text-gray-100"></h2>
+                    <div id="filter-buttons" class="flex items-center gap-4 mt-1">
+                         <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-teal-600 dark:text-teal-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button>
+                         <button data-filter="active" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"><span class="material-symbols-outlined text-base">checklist_rtl</span><span>Attivi</span></button>
+                         <button data-filter="completed" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"><span class="material-symbols-outlined text-base">task_alt</span><span>Completati</span></button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center p-1 rounded-full bg-gray-200 dark:bg-gray-700">
+                        <button id="theme-toggle-light" class="p-1 rounded-full text-gray-700 dark:text-gray-400">
+                            <span class="material-symbols-outlined text-base">light_mode</span>
+                        </button>
+                        <button id="theme-toggle-dark" class="p-1 rounded-full text-gray-700 dark:text-gray-400">
+                            <span class="material-symbols-outlined text-base">dark_mode</span>
+                        </button>
+                    </div>
+                    <button id="add-task-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="material-symbols-outlined">add</span>
+                        <span>Nuovo Task</span>
+                    </button>
+                </div>
+            </header>
+            <div id="task-list-container" class="flex-1 p-6 overflow-y-auto">
+                <!-- Tasks will be rendered here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="task-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
+        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-lg transform -translate-y-10">
+            <form id="task-form">
+                <div class="p-6">
+                    <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuovo Task</h3>
+                    <input type="hidden" id="task-id">
+                    <div class="mb-4">
+                        <label for="task-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titolo</label>
+                        <input type="text" id="task-title" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="task-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descrizione</p>
+                        <textarea id="task-description" rows="3" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="task-due-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Scadenza</label>
+                            <input type="date" id="task-due-date" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors">
+                        </div>
+                        <div>
+                            <label for="task-priority" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Priorità</label>
+                            <select id="task-priority" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors">
+                                <option value="low">Bassa</option>
+                                <option value="medium" selected>Media</option>
+                                <option value="high">Alta</option>
+                                <option value="urgent">Urgente</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg">
+                    <button type="button" id="cancel-btn" class="bg-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-gray-100 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-300 dark:border-gray-600">Annulla</button>
+                    <button type="submit" id="save-btn" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Salva Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Project Modal -->
+    <div id="project-modal" class="modal-backdrop fixed inset-0 flex items-center justify-center z-50 hidden opacity-0">
+        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md transform -translate-y-10">
+            <form id="project-form">
+                <div class="p-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">Nuovo Progetto</h3>
+                    <div class="mb-1">
+                        <label for="project-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome del Progetto</label>
+                        <input type="text" id="project-name" class="w-full border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-teal-400 focus:border-teal-500 dark:focus:border-teal-500 focus:bg-white dark:focus:bg-gray-800 transition-colors" required>
+                    </div>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-800/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg">
+                    <button type="button" id="cancel-project-btn" class="bg-white dark:bg-gray-700 dark:hover:bg-gray-600 hover:bg-gray-100 text-gray-700 dark:text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-300 dark:border-gray-600">Annulla</button>
+                    <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">Crea Progetto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- INIZIO CONFIGURAZIONE FIREBASE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDhvmzfbnJODSHQ6gfGCodw3u9882IHHhg",
+            authDomain: "supertodoai-lavoro.firebaseapp.com",
+            projectId: "supertodoai-lavoro",
+            storageBucket: "supertodoai-lavoro.appspot.com",
+            messagingSenderId: "683403216391",
+            appId: "1:683403216391:web:f34718dadef6a2e2bf0ca2"
+        };
+        // --- FINE CONFIGURAZIONE FIREBASE ---
+
+        // --- STATE MANAGEMENT ---
+        let state = {
+            projects: [],
+            tasks: [],
+            activeProjectId: null,
+            activeFilter: 'all',
+            fb_db: null,
+            fb_auth: null,
+            userId: null,
+            appId: 'supertodoai-lavoro', // ID statico per il deploy
+            projectsUnsubscribe: () => {},
+            tasksUnsubscribe: () => {},
+        };
+
+        // --- DOM SELECTORS ---
+        const projectListEl = document.getElementById('project-list');
+        const taskListContainerEl = document.getElementById('task-list-container');
+        const currentProjectTitleEl = document.getElementById('current-project-title');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const addProjectBtn = document.getElementById('add-project-btn');
+        const themeToggleLight = document.getElementById('theme-toggle-light');
+        const themeToggleDark = document.getElementById('theme-toggle-dark');
+        
+        // Task Modal
+        const taskModal = document.getElementById('task-modal');
+        const taskForm = document.getElementById('task-form');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const taskTitleInput = document.getElementById('task-title');
+        const taskDescriptionInput = document.getElementById('task-description');
+        
+        // Project Modal
+        const projectModal = document.getElementById('project-modal');
+        const projectForm = document.getElementById('project-form');
+        const cancelProjectBtn = document.getElementById('cancel-project-btn');
+
+        // --- RENDER FUNCTIONS ---
+        const renderProjects = () => {
+            if (state.projects.length === 0) {
+                 projectListEl.innerHTML = `<div class="text-center text-gray-400 dark:text-gray-500 text-sm p-4">Nessun progetto. Creane uno!</div>`;
+            } else {
+                 projectListEl.innerHTML = '';
+            }
+           
+            state.projects.forEach(project => {
+                const isActive = project.id === state.activeProjectId;
+                const projectWrapper = document.createElement('div');
+                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-teal-100 dark:bg-teal-900/50' : 'hover:bg-gray-200 dark:hover:bg-gray-700'}`;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-teal-800 dark:text-teal-300' : 'text-gray-600 dark:text-gray-400'}`;
+                nameSpan.textContent = project.name;
+                nameSpan.addEventListener('click', () => {
+                    state.activeProjectId = project.id;
+                    render();
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-project-btn text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1';
+                deleteBtn.dataset.projectId = project.id;
+                deleteBtn.innerHTML = `<span class="material-symbols-outlined text-lg pointer-events-none">delete</span>`;
+                
+                projectWrapper.appendChild(nameSpan);
+                projectWrapper.appendChild(deleteBtn);
+                projectListEl.appendChild(projectWrapper);
+            });
+        };
+
+        const renderTasks = () => {
+            const activeProject = state.projects.find(p => p.id === state.activeProjectId);
+            
+            if (!activeProject) {
+                currentProjectTitleEl.textContent = 'Nessun Progetto';
+                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 mt-10">Crea o seleziona un progetto per iniziare.</div>`;
+                addTaskBtn.disabled = true;
+                return;
+            }
+
+            addTaskBtn.disabled = false;
+            currentProjectTitleEl.textContent = activeProject.name;
+            
+            let tasksToRender = state.tasks.filter(task => task.projectId === state.activeProjectId);
+
+            if (state.activeFilter === 'active') {
+                tasksToRender = tasksToRender.filter(task => !task.completed);
+            } else if (state.activeFilter === 'completed') {
+                tasksToRender = tasksToRender.filter(task => task.completed);
+            }
+
+            taskListContainerEl.innerHTML = '';
+            if (tasksToRender.length === 0) {
+                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 mt-10">Nessun task qui. Aggiungine uno!</div>`;
+                return;
+            }
+
+            tasksToRender.forEach(task => {
+                const priorityMap = {
+                    low: { label: 'Bassa', color: 'bg-green-500' },
+                    medium: { label: 'Media', color: 'bg-yellow-500' },
+                    high: { label: 'Alta', color: 'bg-orange-500' },
+                    urgent: { label: 'Urgente', color: 'bg-red-500' }
+                };
+
+                const taskEl = document.createElement('div');
+                taskEl.className = 'task-item bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex items-start gap-4 mb-3 hover:shadow-md transition-shadow duration-200';
+                
+                const descriptionHTML = task.description ? `<div class="text-sm text-gray-600 dark:text-gray-400">${task.description}</div>` : '';
+
+                taskEl.innerHTML = `
+                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-300 dark:border-gray-600 text-teal-600 focus:ring-teal-500" ${task.completed ? 'checked' : ''}>
+                    <div class="flex-1">
+                        <p class="font-medium ${task.completed ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-gray-100'}">${task.title}</p>
+                        ${descriptionHTML}
+                        <div class="flex items-center gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                            ${task.dueDate ? `<span>Scadenza: ${new Date(task.dueDate).toLocaleDateString('it-IT', {timeZone: 'UTC'})}</span>` : ''}
+                            <div class="flex items-center gap-2">
+                                <div class="priority-dot ${priorityMap[task.priority].color}"></div>
+                                <span>${priorityMap[task.priority].label}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-actions flex items-center gap-2 opacity-0 transition-opacity">
+                        <button class="edit-btn text-gray-500 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button>
+                        <button class="delete-btn text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">delete</span></button>
+                    </div>
+                `;
+                taskListContainerEl.appendChild(taskEl);
+            });
+        };
+        
+        const render = () => {
+            renderProjects();
+            renderTasks();
+        };
+
+        // --- MODAL LOGIC ---
+        const openModal = (modalEl) => {
+            modalEl.classList.remove('hidden');
+            setTimeout(() => {
+                modalEl.classList.remove('opacity-0');
+                modalEl.querySelector('.modal-content').classList.remove('-translate-y-10');
+            }, 10);
+        };
+        const closeModal = (modalEl) => {
+            modalEl.classList.add('opacity-0');
+            modalEl.querySelector('.modal-content').classList.add('-translate-y-10');
+            setTimeout(() => modalEl.classList.add('hidden'), 300);
+        };
+
+        const openTaskModal = (task = null) => {
+            taskForm.reset();
+            const modalTitle = document.getElementById('modal-title');
+            const taskIdInput = document.getElementById('task-id');
+            if (task) {
+                modalTitle.textContent = 'Modifica Task';
+                taskIdInput.value = task.id;
+                taskTitleInput.value = task.title;
+                taskDescriptionInput.value = task.description;
+                document.getElementById('task-due-date').value = task.dueDate;
+                document.getElementById('task-priority').value = task.priority;
+            } else {
+                modalTitle.textContent = 'Nuovo Task';
+                taskIdInput.value = '';
+            }
+            openModal(taskModal);
+        };
+
+        // --- EVENT LISTENERS ---
+        addTaskBtn.addEventListener('click', () => openTaskModal());
+        cancelBtn.addEventListener('click', () => closeModal(taskModal));
+
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('task-id').value;
+            const taskData = {
+                title: taskTitleInput.value,
+                description: taskDescriptionInput.value,
+                dueDate: document.getElementById('task-due-date').value,
+                priority: document.getElementById('task-priority').value,
+            };
+
+            if (id) { // Editing
+                const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, id);
+                await updateDoc(taskRef, taskData);
+            } else { // Creating
+                const tasksCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`);
+                await addDoc(tasksCollection, {
+                    ...taskData,
+                    projectId: state.activeProjectId,
+                    completed: false,
+                    createdAt: new Date()
+                });
+            }
+            closeModal(taskModal);
+        });
+
+        taskListContainerEl.addEventListener('click', async (e) => {
+            const target = e.target.closest('button, input');
+            if (!target) return;
+
+            const taskId = target.dataset.taskId;
+            if (!taskId) return;
+            const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, taskId);
+
+            if (target.classList.contains('toggle-task-cb')) {
+                await updateDoc(taskRef, { completed: target.checked });
+            }
+            if (target.classList.contains('delete-btn')) {
+                await deleteDoc(taskRef);
+            }
+            if (target.classList.contains('edit-btn')) {
+                const task = state.tasks.find(t => t.id === taskId);
+                if (task) openTaskModal(task);
+            }
+        });
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                state.activeFilter = button.dataset.filter;
+                filterButtons.forEach(btn => btn.classList.remove('active', 'text-teal-600', 'dark:text-teal-400'));
+                filterButtons.forEach(btn => btn.classList.add('text-gray-500', 'dark:text-gray-400', 'hover:text-gray-800', 'dark:hover:text-gray-200'));
+                button.classList.add('active', 'text-teal-600', 'dark:text-teal-400');
+                button.classList.remove('text-gray-500', 'dark:text-gray-400', 'hover:text-gray-800', 'dark:hover:text-gray-200');
+                renderTasks();
+            });
+        });
+
+        addProjectBtn.addEventListener('click', () => openModal(projectModal));
+        cancelProjectBtn.addEventListener('click', () => closeModal(projectModal));
+
+        projectForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const projectNameInput = document.getElementById('project-name');
+            const projectName = projectNameInput.value;
+             if (projectName && projectName.trim() !== '') {
+                const projectsCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`);
+                await addDoc(projectsCollection, {
+                    name: projectName.trim(),
+                    createdAt: new Date()
+                });
+                closeModal(projectModal);
+            }
+        });
+        
+        projectListEl.addEventListener('click', async (e) => {
+            const button = e.target.closest('.delete-project-btn');
+            if (button) {
+                const projectId = button.dataset.projectId;
+                
+                const tasksQuery = query(collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`), where("projectId", "==", projectId));
+                const tasksSnapshot = await getDocs(tasksQuery);
+                
+                const batch = writeBatch(state.fb_db);
+                tasksSnapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                
+                const projectRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`, projectId);
+                batch.delete(projectRef);
+                
+                await batch.commit();
+            }
+        });
+
+        // --- THEME TOGGLE ---
+        const updateThemeToggle = () => {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleDark.classList.add('bg-teal-600', 'text-white');
+                themeToggleLight.classList.remove('bg-teal-600', 'text-white');
+            } else {
+                themeToggleLight.classList.add('bg-teal-600', 'text-white');
+                themeToggleDark.classList.remove('bg-teal-600', 'text-white');
+            }
+        };
+        themeToggleLight.addEventListener('click', () => {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            updateThemeToggle();
+        });
+        themeToggleDark.addEventListener('click', () => {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            updateThemeToggle();
+        });
+
+        // --- FIREBASE INITIALIZATION ---
+        async function initializeAppAndAuth() {
+            try {
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                   throw new Error("Configurazione Firebase mancante o incompleta.");
+                }
+                const app = initializeApp(firebaseConfig);
+                state.fb_db = getFirestore(app);
+                state.fb_auth = getAuth(app);
+
+                onAuthStateChanged(state.fb_auth, user => {
+                    if (user) {
+                        state.userId = user.uid;
+                        attachFirestoreListeners();
+                    }
+                });
+                
+                await signInAnonymously(state.fb_auth);
+
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                projectListEl.innerHTML = `<div class="text-center text-red-500 text-sm p-4">Inizializzazione fallita. Controlla la configurazione di Firebase e le regole del database.</div>`;
+            }
+        }
+
+        function attachFirestoreListeners() {
+            if (!state.userId) return;
+
+            // Detach old listeners if they exist
+            state.projectsUnsubscribe();
+            state.tasksUnsubscribe();
+
+            const projectsCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`);
+            state.projectsUnsubscribe = onSnapshot(projectsCollection, (snapshot) => {
+                state.projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                state.projects.sort((a,b) => a.createdAt?.toMillis() - b.createdAt?.toMillis());
+                
+                if (state.activeProjectId === null && state.projects.length > 0) {
+                    state.activeProjectId = state.projects[0].id;
+                } else if (!state.projects.some(p => p.id === state.activeProjectId)) {
+                    state.activeProjectId = state.projects.length > 0 ? state.projects[0].id : null;
+                }
+                render();
+            });
+
+            const tasksCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`);
+            state.tasksUnsubscribe = onSnapshot(tasksCollection, (snapshot) => {
+                state.tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderTasks();
+            });
+        }
+
+        // --- INITIAL RENDER ---
+        updateThemeToggle();
+        initializeAppAndAuth();
+    </script>
+</body>
+</html>
