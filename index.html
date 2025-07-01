@@ -437,7 +437,7 @@
 
         // Funzione per aprire il modale del progresso
         const openProgressModal = (task) => {
-            progressForm.reset();
+            progressForm.reset(); // Resetta il form del progresso
             progressTaskIdInput.value = task.id;
             progressTaskTitleInput.value = task.title; // Titolo del task in sola lettura
             
@@ -583,7 +583,10 @@
             });
         });
 
-        addProjectBtn.addEventListener('click', () => openModal(projectModal));
+        addProjectBtn.addEventListener('click', () => {
+            projectForm.reset(); // Resetta il form prima di aprirlo
+            openModal(projectModal);
+        });
         cancelProjectBtn.addEventListener('click', () => closeModal(projectModal));
 
         projectForm.addEventListener('submit', async (e) => {
