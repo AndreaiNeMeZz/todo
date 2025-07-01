@@ -17,11 +17,21 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.6); /* Sfondo modale leggermente più scuro */
-            transition: opacity 0.3s ease;
+            background-color: rgba(0, 0, 0, 0.6);
+            transition: opacity 0.3s ease-in-out; /* Transizione per l'opacità */
+            backdrop-filter: blur(5px); /* Effetto sfocatura per immersione */
+            -webkit-backdrop-filter: blur(5px); /* Compatibilità Safari */
         }
         .modal-content {
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Transizione per trasformazione e opacità */
+        }
+        .modal-backdrop.hidden .modal-content {
+            transform: translateY(20px); /* Posizione finale per scomparsa */
+            opacity: 0;
+        }
+        .modal-backdrop.show .modal-content {
+            transform: translateY(0); /* Posizione finale per apparizione */
+            opacity: 1;
         }
         .priority-dot {
             width: 10px;
@@ -30,6 +40,31 @@
         }
         .task-item:hover .task-actions {
             opacity: 1;
+        }
+        /* Stili per il messaggio di feedback */
+        #feedback-message {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 1000;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            transform: translateY(20px);
+        }
+        #feedback-message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #feedback-message.success {
+            background-color: #40003c; /* viola-500 */
+            color: #FFFFFF;
+        }
+        #feedback-message.error {
+            background-color: #EF4444; /* red-500 */
+            color: #FFFFFF;
         }
     </style>
     <script>
@@ -55,13 +90,17 @@
                     <span class="material-symbols-outlined">create_new_folder</span>
                     <span>Nuovo Progetto</span>
                 </button>
+                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 hover:bg-gray-800 hover:text-white p-2 rounded-md transition-colors mt-2">
+                    <span class="material-symbols-outlined">archive</span>
+                    <span id="toggle-archived-projects-text">Mostra Progetti Archiviati</span>
+                </button>
             </div>
         </aside>
 
         <!-- Main Content -->
         <main class="flex-1 flex flex-col">
             <header class="bg-gray-900 border-b border-gray-800 flex items-center justify-between p-4"> <!-- Header più scuro, bordo più scuro -->
-                <div>
+                <div class="flex-1">
                     <h2 id="current-project-title" class="text-xl font-bold text-gray-100"></h2>
                     <div id="filter-buttons" class="flex items-center gap-4 mt-1">
                         <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-purple-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button> <!-- Accento viola -->
@@ -69,7 +108,12 @@
                         <button data-filter="completed" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">task_alt</span><span>Completati</span></button>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
+                <!-- Campo di ricerca globale -->
+                <div class="relative ml-4">
+                    <input type="text" id="search-input" placeholder="Cerca task..." class="w-48 p-2 pl-10 rounded-md border border-gray-700 bg-gray-700 text-gray-100 focus:ring-2 focus:ring-purple-400 focus:border-purple-500 transition-colors">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                </div>
+                <div class="flex items-center gap-4 ml-4">
                     <button id="add-task-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"> <!-- Pulsante con accento viola -->
                         <span class="material-symbols-outlined">add</span>
                         <span>Nuovo Task</span>
@@ -91,12 +135,44 @@
                     <input type="hidden" id="task-id">
                     <div class="mb-4">
                         <label for="task-title" class="block text-sm font-medium text-gray-300 mb-1">Titolo</label>
-                        <input type="text" id="task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus viola -->
+                        <input type="text" id="task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" required> <!-- Input con focus viola -->
                     </div>
                     <div class="mb-4">
                         <label for="task-description" class="block text-sm font-medium text-gray-300 mb-1">Descrizione</p>
                         <textarea id="task-description" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"></textarea> <!-- Input con focus viola -->
                     </div>
+
+                    <!-- Sezione Sottotask -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Sottotask/Checklist</label>
+                        <div id="subtasks-container" class="space-y-2">
+                            <!-- I sottotask verranno aggiunti qui dinamicamente -->
+                        </div>
+                        <button type="button" id="add-subtask-btn" class="mt-2 text-sm text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-base">add_circle</span> Aggiungi Sottotask
+                        </button>
+                    </div>
+
+                    <!-- Sezione Task Ricorrente -->
+                    <div class="mb-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" id="is-recurring-checkbox" class="form-checkbox h-5 w-5 text-purple-600 rounded border-gray-600 focus:ring-purple-500">
+                            <span class="ml-2 text-gray-300">Task Ricorrente</span>
+                        </label>
+                        <div id="recurrence-options" class="mt-2 space-y-2 hidden">
+                            <div>
+                                <label for="recurrence-type" class="block text-sm font-medium text-gray-300 mb-1">Frequenza</label>
+                                <select id="recurrence-type" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors">
+                                    <option value="daily">Giornaliero</option>
+                                    <option value="weekly">Settimanale</option>
+                                    <option value="monthly">Mensile</option>
+                                </select>
+                            </div>
+                            <!-- Potremmo aggiungere qui opzioni per intervallo o data di fine in futuro -->
+                        </div>
+                    </div>
+
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="task-due-date" class="block text-sm font-medium text-gray-300 mb-1">Scadenza</label>
@@ -164,6 +240,9 @@
         </div>
     </div>
 
+    <!-- Messaggio di Feedback -->
+    <div id="feedback-message" class="hidden"></div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -190,6 +269,9 @@
             fb_db: null,
             fb_auth: null,
             userId: null,
+            searchQuery: '', // Nuovo stato per la query di ricerca
+            showArchivedProjects: false, // Nuovo stato per mostrare/nascondere progetti archiviati
+            activeView: 'tasks', // Nuovo stato per la vista attiva: 'tasks' o 'dashboard'
             // L'ID dell'app è ora preso direttamente da firebaseConfig
             appId: firebaseConfig.appId, 
             projectsUnsubscribe: () => {},
@@ -199,10 +281,17 @@
         // --- SELETTORI DOM ---
         const projectListEl = document.getElementById('project-list');
         const taskListContainerEl = document.getElementById('task-list-container');
+        const dashboardContainerEl = document.getElementById('dashboard-container'); // Nuovo selettore
+        const mainContentAreaEl = document.getElementById('main-content-area'); // Nuovo selettore per l'area contenitore
+
         const currentProjectTitleEl = document.getElementById('current-project-title');
         const addTaskBtn = document.getElementById('add-task-btn');
         const filterButtons = document.querySelectorAll('.filter-btn');
         const addProjectBtn = document.getElementById('add-project-btn');
+        const searchInput = document.getElementById('search-input'); // Nuovo selettore
+        const toggleArchivedProjectsBtn = document.getElementById('toggle-archived-projects-btn'); // Nuovo selettore
+        const toggleArchivedProjectsText = document.getElementById('toggle-archived-projects-text'); // Nuovo selettore
+        const viewToggleButtons = document.querySelectorAll('.view-toggle-btn'); // Nuovi selettori per i pulsanti di vista
 
         // Task Modal
         const taskModal = document.getElementById('task-modal');
@@ -210,6 +299,12 @@
         const cancelBtn = document.getElementById('cancel-btn');
         const taskTitleInput = document.getElementById('task-title');
         const taskDescriptionInput = document.getElementById('task-description');
+        const subtasksContainer = document.getElementById('subtasks-container'); // Nuovo selettore
+        const addSubtaskBtn = document.getElementById('add-subtask-btn'); // Nuovo selettore
+        const isRecurringCheckbox = document.getElementById('is-recurring-checkbox'); // Nuovo selettore
+        const recurrenceOptions = document.getElementById('recurrence-options'); // Nuovo selettore
+        const recurrenceTypeSelect = document.getElementById('recurrence-type'); // Nuovo selettore
+
 
         // Project Modal
         const projectModal = document.getElementById('project-modal');
@@ -223,26 +318,71 @@
         const progressTaskIdInput = document.getElementById('progress-task-id');
         const progressTaskTitleInput = document.getElementById('progress-task-title');
         const progressTextInput = document.getElementById('progress-text');
-        // const progressTimestampInput = document.getElementById('progress-timestamp'); // Selettore rimosso
+
+        // Messaggio di Feedback
+        const feedbackMessageEl = document.getElementById('feedback-message');
+
+        // --- FUNZIONI DI UTILITÀ ---
+        const showMessage = (message, type) => {
+            feedbackMessageEl.textContent = message;
+            feedbackMessageEl.className = `show ${type}`; // Aggiunge 'show' e il tipo (success/error)
+            setTimeout(() => {
+                feedbackMessageEl.classList.remove('show');
+            }, 3000); // Nasconde dopo 3 secondi
+        };
+
+        // Funzione per generare un ID univoco (per i sottotask)
+        const generateUniqueId = () => {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        };
 
         // --- FUNZIONI DI RENDERIZZAZIONE ---
         const renderProjects = () => {
             if (state.projects.length === 0) {
-                projectListEl.innerHTML = `<div class="text-center text-gray-400 text-sm p-4">Nessun progetto. Creane uno!</div>`;
+                projectListEl.innerHTML = `
+                    <div class="text-center text-gray-500 text-sm p-4 flex flex-col items-center justify-center h-full">
+                        <span class="material-symbols-outlined text-gray-600 text-5xl mb-2">folder_open</span>
+                        <span>Nessun progetto qui.</span>
+                        <span>Clicca su "Nuovo Progetto" per iniziare!</span>
+                    </div>
+                `;
             } else {
                 projectListEl.innerHTML = '';
             }
             
-            state.projects.forEach(project => {
+            // Filtra i progetti in base a showArchivedProjects
+            let projectsToRender = state.projects.filter(p => p.archived === state.showArchivedProjects);
+
+            // Se stiamo mostrando i progetti archiviati, aggiorna il testo del pulsante
+            if (state.showArchivedProjects) {
+                toggleArchivedProjectsText.textContent = 'Mostra Progetti Attivi';
+                toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'unarchive';
+            } else {
+                toggleArchivedProjectsText.textContent = 'Mostra Progetti Archiviati';
+                toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'archive';
+            }
+
+            projectsToRender.forEach(project => {
                 const isActive = project.id === state.activeProjectId;
                 const projectWrapper = document.createElement('div');
-                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-purple-900/50' : 'hover:bg-gray-700'}`; /* Sfondo attivo e hover aggiornati */
+                // Modifica delle classi per lo sfondo del progetto attivo e inattivo, e per l'effetto hover
+                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer transition-all duration-200
+                    ${isActive
+                        ? 'bg-gray-700 shadow-md border-l-[8px] border-purple-400' // Sfondo leggermente più chiaro per l'attivo, con bordo e ombra
+                        : 'bg-gray-800' // Sfondo più scuro per l'inattivo
+                    }
+                    ${isActive ? 'hover:bg-gray-600' : 'hover:bg-gray-700'} // Effetto hover: più chiaro per l'attivo, normale per l'inattivo
+                `;
                 
                 const nameSpan = document.createElement('span');
                 nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-purple-300' : 'text-gray-300'}`; /* Colore testo attivo e inattivo aggiornati */
                 nameSpan.textContent = project.name;
                 nameSpan.addEventListener('click', () => {
                     state.activeProjectId = project.id;
+                    state.activeView = 'tasks'; // Torna alla vista task se selezioni un progetto
                     render();
                 });
 
@@ -250,19 +390,64 @@
                 deleteBtn.className = 'delete-project-btn text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1';
                 deleteBtn.dataset.projectId = project.id;
                 deleteBtn.innerHTML = `<span class="material-symbols-outlined text-lg pointer-events-none">delete</span>`;
+
+                const archiveBtn = document.createElement('button');
+                archiveBtn.className = 'archive-project-btn text-gray-400 hover:text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity p-1 ml-2';
+                archiveBtn.dataset.projectId = project.id;
+                archiveBtn.dataset.archivedStatus = project.archived; // Passa lo stato di archiviazione corrente
+                archiveBtn.innerHTML = `<span class="material-symbols-outlined text-lg pointer-events-none">${project.archived ? 'unarchive' : 'archive'}</span>`;
                 
                 projectWrapper.appendChild(nameSpan);
+                projectWrapper.appendChild(archiveBtn); // Aggiungi il pulsante archivia/ripristina
                 projectWrapper.appendChild(deleteBtn);
                 projectListEl.appendChild(projectWrapper);
             });
         };
 
         const renderTasks = () => {
+            // Nascondi o mostra i contenitori in base alla vista attiva
+            if (state.activeView === 'tasks') {
+                taskListContainerEl.classList.remove('hidden');
+                // dashboardContainerEl.classList.add('hidden'); // Rimosso
+                // Aggiorna lo stato dei pulsanti di vista
+                // viewToggleButtons.forEach(btn => { // Rimosso
+                //     if (btn.dataset.view === 'tasks') {
+                //         btn.classList.add('active', 'text-purple-400');
+                //         btn.classList.remove('text-gray-400', 'hover:text-gray-200');
+                //     } else {
+                //         btn.classList.remove('active', 'text-purple-400');
+                //         btn.classList.add('text-gray-400', 'hover:text-gray-200');
+                //     }
+                // });
+            } else { // dashboard
+                // taskListContainerEl.classList.add('hidden'); // Rimosso
+                // dashboardContainerEl.classList.remove('hidden'); // Rimosso
+                 // Aggiorna lo stato dei pulsanti di vista
+                // viewToggleButtons.forEach(btn => { // Rimosso
+                //     if (btn.dataset.view === 'dashboard') {
+                //         btn.classList.add('active', 'text-purple-400');
+                //         btn.classList.remove('text-gray-400', 'hover:text-gray-200');
+                //     } else {
+                //         btn.classList.remove('active', 'text-purple-400');
+                //         btn.classList.add('text-gray-400', 'hover:text-gray-200');
+                //     }
+                // });
+                // renderDashboard(); // Rimosso
+                // return; // Non renderizzare i task se siamo nella dashboard
+            }
+
+
             const activeProject = state.projects.find(p => p.id === state.activeProjectId);
             
             if (!activeProject) {
                 currentProjectTitleEl.textContent = 'Nessun Progetto';
-                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 text-sm mt-10">Crea o seleziona un progetto per iniziare.</div>`;
+                taskListContainerEl.innerHTML = `
+                    <div class="text-center text-gray-500 mt-10 flex flex-col items-center justify-center h-full">
+                        <span class="material-symbols-outlined text-gray-600 text-5xl mb-2">inbox</span>
+                        <span>Seleziona un progetto dalla sidebar</span>
+                        <span>o creane uno nuovo per iniziare ad aggiungere task!</span>
+                    </div>
+                `;
                 addTaskBtn.disabled = true;
                 return;
             }
@@ -277,6 +462,26 @@
                 tasksToRender = tasksToRender.filter(task => !task.completed);
             } else if (state.activeFilter === 'completed') {
                 tasksToRender = tasksToRender.filter(task => task.completed);
+            }
+
+            // Filtro i task in base allo stato di archiviazione del progetto
+            // Se il progetto è archiviato, mostriamo tutti i suoi task (anche quelli archiviati individualmente)
+            // Se il progetto non è archiviato, mostriamo solo i task non archiviati al suo interno
+            if (!activeProject.archived) {
+                 // tasksToRender = tasksToRender.filter(task => !task.archived); // Rimosso filtro archiviazione task
+            }
+
+
+            // Filtro per la ricerca avanzata
+            if (state.searchQuery) {
+                const query = state.searchQuery.toLowerCase();
+                tasksToRender = tasksToRender.filter(task => {
+                    const matchesTitle = task.title.toLowerCase().includes(query);
+                    const matchesDescription = task.description ? task.description.toLowerCase().includes(query) : false;
+                    const matchesProgress = task.progressHistory ? task.progressHistory.some(p => p.text.toLowerCase().includes(query)) : false;
+                    const matchesSubtask = task.subtasks ? task.subtasks.some(st => st.text.toLowerCase().includes(query)) : false; // Ricerca anche nei sottotask
+                    return matchesTitle || matchesDescription || matchesProgress || matchesSubtask;
+                });
             }
 
 
@@ -298,7 +503,13 @@
 
             taskListContainerEl.innerHTML = '';
             if (tasksToRender.length === 0) {
-                taskListContainerEl.innerHTML = `<div class="text-center text-gray-500 text-sm mt-10">Nessun task qui. Aggiungine uno!</div>`;
+                taskListContainerEl.innerHTML = `
+                    <div class="text-center text-gray-500 mt-10 flex flex-col items-center justify-center h-full">
+                        <span class="material-symbols-outlined text-gray-600 text-5xl mb-2">task_alt</span>
+                        <span>Nessun task in questo progetto.</span>
+                        <span>Clicca su "Nuovo Task" per aggiungerne uno!</span>
+                    </div>
+                `;
                 return;
             }
 
@@ -311,7 +522,8 @@
                 };
 
                 const taskEl = document.createElement('div');
-                taskEl.className = 'task-item bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 flex items-start gap-4 mb-3 hover:shadow-lg transition-shadow duration-200'; // Ombra leggermente più pronunciata all'hover
+                // Rimosso classe per attenuare i task archiviati (non più archiviabili individualmente)
+                taskEl.className = `task-item bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 flex items-start gap-4 mb-3 hover:shadow-lg transition-shadow duration-200`;
                 
                 const descriptionHTML = task.description ? `<div class="text-sm text-gray-400">${task.description}</div>` : '';
                 
@@ -374,12 +586,32 @@
                     fullProgressHistoryHTML = `<div class="text-sm text-gray-500 mt-2 mb-2">Nessun progresso ancora.</div>`;
                 }
 
+                // Gestione e visualizzazione dei sottotask
+                let subtasksHTML = '';
+                if (task.subtasks && Array.isArray(task.subtasks) && task.subtasks.length > 0) {
+                    subtasksHTML += `<div class="mt-2 text-sm text-gray-400">
+                        <span class="font-medium text-purple-300">Sottotask:</span>
+                        <ul class="list-none ml-0 mt-1 space-y-1">`;
+                    task.subtasks.forEach(subtask => {
+                        subtasksHTML += `<li class="flex items-center gap-2">
+                            <input type="checkbox" data-task-id="${task.id}" data-subtask-id="${subtask.id}" class="toggle-subtask-cb h-4 w-4 rounded border-gray-600 text-purple-600 focus:ring-purple-500" ${subtask.completed ? 'checked' : ''}>
+                            <span class="${subtask.completed ? 'line-through text-gray-500' : 'text-gray-300'}">${subtask.text}</span>
+                        </li>`;
+                    });
+                    subtasksHTML += `</ul></div>`;
+                }
+
+                // Indicatore task ricorrente
+                const recurringIcon = task.isRecurring ? `<span class="material-symbols-outlined text-purple-400 text-base ml-2" title="Task Ricorrente (${task.recurrenceType})">event_repeat</span>` : '';
+
+
                 taskEl.innerHTML = `
                     <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500" ${task.completed ? 'checked' : ''}>
                     <div class="flex-1">
-                        <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title}</p>
+                        <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title} ${recurringIcon}</p>
                         ${descriptionHTML}
                         ${fullProgressHistoryHTML}
+                        ${subtasksHTML} <!-- Inserisci i sottotask qui -->
                         <div class="flex items-center gap-4 mt-2 text-sm text-gray-400">
                             ${task.dueDate ? `<span>Scadenza: ${new Date(task.dueDate).toLocaleDateString('it-IT', {timeZone: 'UTC'})}</span>` : ''}
                             <div class="flex items-center gap-2">
@@ -398,22 +630,28 @@
             });
         };
         
+        // --- FUNZIONE PER RENDERIZZARE LA DASHBOARD ---
+        // Funzione renderDashboard rimossa
+        // --- FINE FUNZIONE PER RENDERIZZARE LA DASHBOARD ---
+
+
         const render = () => {
             renderProjects();
-            renderTasks();
+            renderTasks(); // renderTasks ora gestisce anche la visualizzazione della dashboard
         };
 
         // --- LOGICA MODALE ---
         const openModal = (modalEl) => {
             modalEl.classList.remove('hidden');
+            // Aggiungi la classe 'show' per attivare le transizioni
             setTimeout(() => {
-                modalEl.classList.remove('opacity-0');
-                modalEl.querySelector('.modal-content').classList.remove('-translate-y-10');
+                modalEl.classList.add('show');
             }, 10);
         };
         const closeModal = (modalEl) => {
-            modalEl.classList.add('opacity-0');
-            modalEl.querySelector('.modal-content').classList.add('-translate-y-10');
+            // Rimuovi la classe 'show' per attivare le transizioni di chiusura
+            modalEl.classList.remove('show');
+            // Nascondi completamente l'elemento solo dopo la transizione
             setTimeout(() => modalEl.classList.add('hidden'), 300);
         };
 
@@ -421,6 +659,10 @@
             taskForm.reset();
             const modalTitle = document.getElementById('modal-title');
             const taskIdInput = document.getElementById('task-id');
+            subtasksContainer.innerHTML = ''; // Pulisci i sottotask precedenti
+            isRecurringCheckbox.checked = false; // Resetta la checkbox ricorrente
+            recurrenceOptions.classList.add('hidden'); // Nascondi opzioni ricorrenza
+
             if (task) {
                 modalTitle.textContent = 'Modifica Task';
                 taskIdInput.value = task.id;
@@ -428,11 +670,45 @@
                 taskDescriptionInput.value = task.description;
                 document.getElementById('task-due-date').value = task.dueDate;
                 document.getElementById('task-priority').value = task.priority;
+                
+                // Popola i sottotask esistenti
+                if (task.subtasks && Array.isArray(task.subtasks)) {
+                    task.subtasks.forEach(subtask => addSubtaskField(subtask.text, subtask.completed, subtask.id));
+                }
+
+                // Popola i campi ricorrenti
+                if (task.isRecurring) {
+                    isRecurringCheckbox.checked = true;
+                    recurrenceOptions.classList.remove('hidden');
+                    recurrenceTypeSelect.value = task.recurrenceType || 'daily';
+                }
+
             } else {
                 modalTitle.textContent = 'Nuovo Task';
                 taskIdInput.value = '';
             }
             openModal(taskModal);
+        };
+
+        // Funzione per aggiungere un campo sottotask al modale
+        const addSubtaskField = (text = '', completed = false, id = generateUniqueId()) => {
+            const subtaskDiv = document.createElement('div');
+            subtaskDiv.className = 'flex items-center gap-2';
+            subtaskDiv.dataset.subtaskId = id; // Assegna un ID univoco al sottotask
+
+            subtaskDiv.innerHTML = `
+                <input type="checkbox" class="subtask-checkbox h-4 w-4 text-purple-600 rounded border-gray-600 focus:ring-purple-500" ${completed ? 'checked' : ''}>
+                <input type="text" class="subtask-text flex-1 border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" value="${text}" placeholder="Descrizione sottotask">
+                <button type="button" class="remove-subtask-btn text-gray-400 hover:text-red-500 p-1 rounded-full">
+                    <span class="material-symbols-outlined text-lg">remove_circle</span>
+                </button>
+            `;
+            subtasksContainer.appendChild(subtaskDiv);
+
+            // Listener per rimuovere il sottotask
+            subtaskDiv.querySelector('.remove-subtask-btn').addEventListener('click', () => {
+                subtaskDiv.remove();
+            });
         };
 
         // Funzione per aprire il modale del progresso
@@ -447,35 +723,140 @@
             openModal(progressModal);
         };
 
+        // --- FUNZIONI DI ARCHIVIAZIONE ---
+        const toggleProjectArchiveStatus = async (projectId, currentStatus) => {
+            const projectRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`, projectId);
+            const newStatus = !currentStatus;
+            const batch = writeBatch(state.fb_db);
+
+            batch.update(projectRef, { archived: newStatus });
+
+            // Aggiorna anche lo stato di archiviazione di tutti i task associati al progetto
+            const tasksQuery = query(collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`), where("projectId", "==", projectId));
+            const tasksSnapshot = await getDocs(tasksQuery);
+            tasksSnapshot.forEach(taskDoc => {
+                batch.update(taskDoc.ref, { archived: newStatus });
+            });
+
+            try {
+                await batch.commit();
+                showMessage(`Progetto e task ${newStatus ? 'archiviati' : 'ripristinati'} con successo!`, 'success');
+                // Se il progetto archiviato era quello attivo, resetta l'activeProjectId
+                if (projectId === state.activeProjectId && newStatus) {
+                    state.activeProjectId = null;
+                    render(); // Forzare un re-render completo per aggiornare la vista principale
+                }
+            } catch (error) {
+                console.error("Errore nell'aggiornamento dello stato di archiviazione del progetto:", error);
+                showMessage(`Errore nell'${newStatus ? 'archiviazione' : 'ripristino'} del progetto.`, 'error');
+            }
+        };
+
+        // Rimosso toggleTaskArchiveStatus - i task non sono più archiviabili individualmente
+
+
+        // Funzione per calcolare la prossima data di scadenza per i task ricorrenti
+        const calculateNextDueDate = (currentDueDate, recurrenceType) => {
+            const date = currentDueDate ? new Date(currentDueDate) : new Date();
+            if (isNaN(date.getTime())) { // Fallback se la data è invalida
+                return null;
+            }
+            switch (recurrenceType) {
+                case 'daily':
+                    date.setDate(date.getDate() + 1);
+                    break;
+                case 'weekly':
+                    date.setDate(date.getDate() + 7);
+                    break;
+                case 'monthly':
+                    date.setMonth(date.getMonth() + 1);
+                    break;
+                default:
+                    return null;
+            }
+            return date.toISOString().split('T')[0]; // Ritorna la data in formato 'YYYY-MM-DD'
+        };
+
+
         // --- LISTENER DI EVENTI ---
+        // Listener per il campo di ricerca
+        searchInput.addEventListener('input', () => {
+            state.searchQuery = searchInput.value;
+            renderTasks(); // Ricarica i task per applicare il filtro di ricerca
+        });
+
+        // Listener per i pulsanti di vista (Task/Dashboard)
+        // viewToggleButtons.forEach(button => { // Rimosso
+        //     button.addEventListener('click', () => {
+        //         state.activeView = button.dataset.view;
+        //         render(); // Ricarica l'intera interfaccia per cambiare vista
+        //     });
+        // });
+
         addTaskBtn.addEventListener('click', () => openTaskModal());
         cancelBtn.addEventListener('click', () => closeModal(taskModal));
+
+        // Listener per aggiungere sottotask
+        addSubtaskBtn.addEventListener('click', () => addSubtaskField());
+
+        // Listener per la checkbox "Task Ricorrente"
+        isRecurringCheckbox.addEventListener('change', () => {
+            if (isRecurringCheckbox.checked) {
+                recurrenceOptions.classList.remove('hidden');
+            } else {
+                recurrenceOptions.classList.add('hidden');
+            }
+        });
+
 
         taskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('task-id').value;
+            
+            // Raccogli i dati dei sottotask
+            const subtasks = [];
+            subtasksContainer.querySelectorAll('.flex.items-center.gap-2').forEach(subtaskDiv => {
+                const subtaskId = subtaskDiv.dataset.subtaskId || generateUniqueId(); // Usa ID esistente o genera nuovo
+                const subtaskText = subtaskDiv.querySelector('.subtask-text').value;
+                const subtaskCompleted = subtaskDiv.querySelector('.subtask-checkbox').checked;
+                if (subtaskText.trim() !== '') {
+                    subtasks.push({ id: subtaskId, text: subtaskText, completed: subtaskCompleted });
+                }
+            });
+
             const taskData = {
                 title: taskTitleInput.value,
                 description: taskDescriptionInput.value,
                 dueDate: document.getElementById('task-due-date').value,
                 priority: document.getElementById('task-priority').value,
+                subtasks: subtasks, // Salva i sottotask
+                isRecurring: isRecurringCheckbox.checked, // Salva lo stato di ricorrenza
+                recurrenceType: isRecurringCheckbox.checked ? recurrenceTypeSelect.value : null, // Salva il tipo di ricorrenza
             };
 
-            if (id) { // Modifica
-                const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, id);
-                await updateDoc(taskRef, taskData);
-            } else { // Creazione
-                const tasksCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`);
-                await addDoc(tasksCollection, {
-                    ...taskData,
-                    projectId: state.activeProjectId,
-                    completed: false,
-                    progressHistory: [], // Inizializza lo storico del progresso come array vuoto
-                    lastUpdated: new Date(), // Aggiungi il timestamp di creazione
-                    createdAt: new Date()
-                });
+            try {
+                if (id) { // Modifica
+                    const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, id);
+                    await updateDoc(taskRef, taskData);
+                    showMessage('Task aggiornato con successo!', 'success');
+                } else { // Creazione
+                    const tasksCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`);
+                    await addDoc(tasksCollection, {
+                        ...taskData,
+                        projectId: state.activeProjectId,
+                        completed: false,
+                        // archived: false, // Rimosso campo archiviato per i task
+                        progressHistory: [], // Inizializza lo storico del progresso come array vuoto
+                        lastUpdated: new Date(), // Aggiungi il timestamp di creazione
+                        createdAt: new Date()
+                    });
+                    showMessage('Task creato con successo!', 'success');
+                }
+                closeModal(taskModal);
+            } catch (error) {
+                console.error("Errore nel salvataggio del task:", error);
+                showMessage('Errore nel salvataggio del task.', 'error');
             }
-            closeModal(taskModal);
         });
 
         // Listener per il nuovo modale del progresso
@@ -488,31 +869,37 @@
             // Ora la data è sempre quella corrente
             let chosenDate = new Date(); 
 
-            if (taskId) {
-                const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, taskId);
-                
-                // Recupera il task corrente per ottenere lo storico del progresso
-                const currentTask = state.tasks.find(t => t.id === taskId);
-                let currentProgressHistory = [];
+            try {
+                if (taskId) {
+                    const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, taskId);
+                    
+                    // Recupera il task corrente per ottenere lo storico del progresso
+                    const currentTask = state.tasks.find(t => t.id === taskId);
+                    let currentProgressHistory = [];
 
-                if (currentTask) {
-                    if (Array.isArray(currentTask.progressHistory)) {
-                        currentProgressHistory = [...currentTask.progressHistory];
-                    } else if (typeof currentTask.progress === 'string' && currentTask.progress) {
-                        // Migrazione: se il vecchio campo 'progress' è una stringa, usalo come primo elemento dello storico
-                        currentProgressHistory.push({ text: currentTask.progress, timestamp: currentTask.lastUpdated || currentTask.createdAt || new Date() });
+                    if (currentTask) {
+                        if (Array.isArray(currentTask.progressHistory)) {
+                            currentProgressHistory = [...currentTask.progressHistory];
+                        } else if (typeof currentTask.progress === 'string' && currentTask.progress) {
+                            // Migrazione: se il vecchio campo 'progress' è una stringa, usalo come primo elemento dello storico
+                            currentProgressHistory.push({ text: currentTask.progress, timestamp: currentTask.lastUpdated || currentTask.createdAt || new Date() });
+                        }
                     }
+
+                    // Aggiungi il nuovo progresso allo storico
+                    currentProgressHistory.push({ text: newProgressText, timestamp: chosenDate });
+
+                    await updateDoc(taskRef, { 
+                        progressHistory: currentProgressHistory,
+                        lastUpdated: chosenDate // Aggiorna il timestamp generale del task all'ultimo progresso
+                    });
+                    showMessage('Progresso aggiornato con successo!', 'success');
                 }
-
-                // Aggiungi il nuovo progresso allo storico
-                currentProgressHistory.push({ text: newProgressText, timestamp: chosenDate });
-
-                await updateDoc(taskRef, { 
-                    progressHistory: currentProgressHistory,
-                    lastUpdated: chosenDate // Aggiorna il timestamp generale del task all'ultimo progresso
-                });
+                closeModal(progressModal);
+            } catch (error) {
+                console.error("Errore nell'aggiornamento del progresso:", error);
+                showMessage('Errore nell\'aggiornamento del progresso.', 'error');
             }
-            closeModal(progressModal);
         });
 
 
@@ -528,13 +915,45 @@
 
 
             if (target.classList.contains('toggle-task-cb')) {
-                // Aggiornamento ottimistico dell'UI
+                // Gestione task ricorrenti al completamento
+                if (taskIndex !== -1 && state.tasks[taskIndex].isRecurring && target.checked) {
+                    const originalTask = state.tasks[taskIndex];
+                    const nextDueDate = calculateNextDueDate(originalTask.dueDate, originalTask.recurrenceType);
+
+                    if (nextDueDate) {
+                        // Crea una nuova istanza del task ricorrente
+                        const newRecurringTaskData = {
+                            ...originalTask,
+                            completed: false, // La nuova istanza non è completata
+                            dueDate: nextDueDate,
+                            createdAt: new Date(), // Nuovo timestamp di creazione
+                            lastUpdated: new Date(), // Nuovo timestamp di aggiornamento
+                            progressHistory: [], // Reset progress history for new instance
+                            // originalTaskId: originalTask.id // Collega all'originale se necessario per tracking avanzato
+                        };
+                        // Rimuovi l'ID dell'originale per creare un nuovo documento
+                        delete newRecurringTaskData.id; 
+
+                        try {
+                            await addDoc(collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`), newRecurringTaskData);
+                            showMessage('Nuova istanza del task ricorrente creata!', 'success');
+                        } catch (error) {
+                            console.error("Errore nella creazione della nuova istanza ricorrente:", error);
+                            showMessage('Errore nella creazione della nuova istanza ricorrente.', 'error');
+                        }
+                    } else {
+                        console.warn("Impossibile calcolare la prossima data di scadenza per il task ricorrente.");
+                    }
+                }
+
+                // Aggiornamento ottimistico dell'UI per il completamento del task
                 if (taskIndex !== -1) {
                     state.tasks[taskIndex].completed = target.checked;
                     renderTasks(); // Re-render immediato per feedback visivo
                 }
                 try {
                     await updateDoc(taskRef, { completed: target.checked });
+                    showMessage('Stato task aggiornato!', 'success');
                 } catch (error) {
                     console.error("Errore nell'aggiornamento dello stato di completamento del task:", error);
                     // Revert optimistic update if Firestore update fails
@@ -542,21 +961,59 @@
                         state.tasks[taskIndex].completed = !target.checked;
                         renderTasks(); // Re-render per ripristinare lo stato precedente
                     }
-                    // Puoi aggiungere qui un messaggio di errore visibile all'utente
+                    showMessage('Errore nell\'aggiornamento dello stato del task.', 'error');
                 }
             }
+            // Listener per la checkbox dei sottotask
+            if (target.classList.contains('toggle-subtask-cb')) {
+                const subtaskId = target.dataset.subtaskId; 
+                if (taskIndex !== -1 && subtaskId) {
+                    const subtaskIndex = state.tasks[taskIndex].subtasks.findIndex(st => st.id === subtaskId);
+                    if (subtaskIndex !== -1) {
+                        // Aggiornamento ottimistico
+                        state.tasks[taskIndex].subtasks[subtaskIndex].completed = target.checked;
+                        renderTasks();
+
+                        // Aggiornamento Firestore
+                        const updatedSubtasks = [...state.tasks[taskIndex].subtasks];
+                        try {
+                            await updateDoc(taskRef, { subtasks: updatedSubtasks });
+                            showMessage('Sottotask aggiornato!', 'success');
+                        } catch (error) {
+                            console.error("Errore nell'aggiornamento del sottotask:", error);
+                            showMessage('Errore nell\'aggiornamento del sottotask.', 'error');
+                            // Revert in caso di errore
+                            state.tasks[taskIndex].subtasks[subtaskIndex].completed = !target.checked;
+                            renderTasks();
+                        }
+                    }
+                }
+            }
+
+
             if (target.classList.contains('delete-btn')) {
-                await deleteDoc(taskRef);
+                try {
+                    await deleteDoc(taskRef);
+                    showMessage('Task eliminato con successo!', 'success');
+                } catch (error) {
+                    console.error("Errore nell'eliminazione del task:", error);
+                    showMessage('Errore nell\'eliminazione del task.', 'error');
+                }
             }
             if (target.classList.contains('edit-btn')) {
                 const task = state.tasks.find(t => t.id === taskId);
                 if (task) openTaskModal(task);
             }
-            // Nuovo listener per il pulsante Aggiorna Progresso
+            // Listener per il pulsante Aggiorna Progresso
             if (target.classList.contains('update-progress-btn')) {
                 const task = state.tasks.find(t => t.id === taskId);
                 if (task) openProgressModal(task);
             }
+            // Rimosso listener per il pulsante Archivia/Ripristina Task individuale
+            // if (target.classList.contains('archive-task-btn')) {
+            //     const currentArchivedStatus = target.dataset.archivedStatus === 'true';
+            //     toggleTaskArchiveStatus(taskId, currentArchivedStatus);
+            // }
 
             // Listener per il pulsante di toggle della cronologia del progresso
             if (target.classList.contains('toggle-progress-history-btn')) {
@@ -593,35 +1050,71 @@
             e.preventDefault();
             const projectNameInput = document.getElementById('project-name');
             const projectName = projectNameInput.value;
-            if (projectName && projectName.trim() !== '') {
-                const projectsCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`);
-                await addDoc(projectsCollection, {
-                    name: projectName.trim(),
-                    createdAt: new Date()
-                });
-                closeModal(projectModal);
+            try {
+                if (projectName && projectName.trim() !== '') {
+                    const projectsCollection = collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`);
+                    await addDoc(projectsCollection, {
+                        name: projectName.trim(),
+                        archived: false, // Nuovo campo: non archiviato di default
+                        createdAt: new Date()
+                    });
+                    showMessage('Progetto creato con successo!', 'success');
+                    // Sposta closeModal qui per assicurare che si chiuda sempre
+                    closeModal(projectModal); 
+                    // Se stavamo visualizzando progetti archiviati, torniamo ai progetti attivi
+                    if (state.showArchivedProjects) {
+                        state.showArchivedProjects = false;
+                        state.activeProjectId = null; // Deseleziona per forzare il re-render e selezione del nuovo progetto
+                        render();
+                    }
+                }
+            } catch (error) {
+                console.error("Errore nella creazione del progetto:", error);
+                showMessage('Errore nella creazione del progetto.', 'error');
+                // Sposta closeModal qui per assicurare che si chiuda anche in caso di errore
+                closeModal(projectModal); 
             }
         });
         
         projectListEl.addEventListener('click', async (e) => {
             const button = e.target.closest('.delete-project-btn');
+            const archiveButton = e.target.closest('.archive-project-btn');
+
             if (button) {
                 const projectId = button.dataset.projectId;
                 
-                const tasksQuery = query(collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`), where("projectId", "==", projectId));
-                const tasksSnapshot = await getDocs(tasksQuery);
-                
-                const batch = writeBatch(state.fb_db);
-                tasksSnapshot.forEach(doc => {
-                    batch.delete(doc.ref);
-                });
-                
-                const projectRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`, projectId);
-                batch.delete(projectRef);
-                
-                await batch.commit();
+                try {
+                    const tasksQuery = query(collection(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`), where("projectId", "==", projectId));
+                    const tasksSnapshot = await getDocs(tasksQuery);
+                    
+                    const batch = writeBatch(state.fb_db);
+                    tasksSnapshot.forEach(doc => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    const projectRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/projects`, projectId);
+                    batch.delete(projectRef);
+                    
+                    await batch.commit();
+                    showMessage('Progetto e task correlati eliminati con successo!', 'success');
+                } catch (error) {
+                    console.error("Errore nell'eliminazione del progetto:", error);
+                    showMessage('Errore nell\'eliminazione del progetto.', 'error');
+                }
+            } else if (archiveButton) {
+                const projectId = archiveButton.dataset.projectId;
+                const currentArchivedStatus = archiveButton.dataset.archivedStatus === 'true';
+                toggleProjectArchiveStatus(projectId, currentArchivedStatus);
             }
         });
+
+        // Listener per il pulsante "Mostra Progetti Archiviati"
+        toggleArchivedProjectsBtn.addEventListener('click', () => {
+            state.showArchivedProjects = !state.showArchivedProjects;
+            state.activeProjectId = null; // Deseleziona il progetto attivo quando cambi vista
+            render(); // Ricarica sia i progetti che i task
+        });
+
 
         // --- INIZIALIZZAZIONE FIREBASE ---
         async function initializeAppAndAuth() {
@@ -674,12 +1167,28 @@
                 state.projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 state.projects.sort((a,b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0)); // Assicurati che createdAt sia gestito in modo sicuro
                 
-                if (state.activeProjectId === null && state.projects.length > 0) {
-                    state.activeProjectId = state.projects[0].id;
-                } else if (!state.projects.some(p => p.id === state.activeProjectId)) {
-                    // Se il progetto attivo è stato eliminato, seleziona il primo o null
-                    state.activeProjectId = state.projects.length > 0 ? state.projects[0].id : null;
+                // Se il progetto attivo è stato archiviato o eliminato, resetta la selezione
+                if (state.activeProjectId && !state.projects.some(p => p.id === state.activeProjectId && p.archived === state.showArchivedProjects)) {
+                    state.activeProjectId = null;
                 }
+                if (state.activeProjectId === null && state.projects.length > 0 && !state.showArchivedProjects) {
+                    // Se non c'è un progetto attivo e non stiamo mostrando archiviati, seleziona il primo non archiviato
+                    const firstActiveProject = state.projects.find(p => !p.archived);
+                    if (firstActiveProject) {
+                        state.activeProjectId = firstActiveProject.id;
+                    } else {
+                        state.activeProjectId = null; // Nessun progetto attivo da selezionare
+                    }
+                } else if (state.activeProjectId === null && state.projects.length > 0 && state.showArchivedProjects) {
+                     // Se non c'è un progetto attivo e stiamo mostrando archiviati, seleziona il primo archiviato
+                    const firstArchivedProject = state.projects.find(p => p.archived);
+                    if (firstArchivedProject) {
+                        state.activeProjectId = firstArchivedProject.id;
+                    } else {
+                        state.activeProjectId = null; // Nessun progetto archiviato da selezionare
+                    }
+                }
+
                 render();
             }, (error) => {
                 console.error("Errore nel recupero dei progetti:", error);
