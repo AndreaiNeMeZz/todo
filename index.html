@@ -17,21 +17,18 @@
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
         .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.6);
-            transition: opacity 0.3s ease-in-out; /* Transizione per l'opacità */
-            backdrop-filter: blur(5px); /* Effetto sfocatura per immersione */
-            -webkit-backdrop-filter: blur(5px); /* Compatibilità Safari */
+            background-color: rgba(0, 0, 0, 0.5); /* Sfondo modale originale */
+            transition: opacity 0.3s ease; /* Transizione originale */
+            /* backdrop-filter e -webkit-backdrop-filter rimossi */
         }
         .modal-content {
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Transizione per trasformazione e opacità */
+            transition: transform 0.3s ease; /* Transizione originale */
         }
         .modal-backdrop.hidden .modal-content {
-            transform: translateY(20px); /* Posizione finale per scomparsa */
-            opacity: 0;
+            /* Regole rimosse */
         }
         .modal-backdrop.show .modal-content {
-            transform: translateY(0); /* Posizione finale per apparizione */
-            opacity: 1;
+            /* Regole rimosse */
         }
         .priority-dot {
             width: 10px;
@@ -90,7 +87,7 @@
                     <span class="material-symbols-outlined">create_new_folder</span>
                     <span>Nuovo Progetto</span>
                 </button>
-                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 hover:bg-gray-800 hover:text-white p-2 rounded-md transition-colors mt-2">
+                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 hover:bg-gray-800 opacity-50 hover:text-white p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">archive</span>
                     <span id="toggle-archived-projects-text">Mostra Progetti Archiviati</span>
                 </button>
@@ -281,8 +278,8 @@
         // --- SELETTORI DOM ---
         const projectListEl = document.getElementById('project-list');
         const taskListContainerEl = document.getElementById('task-list-container');
-        const dashboardContainerEl = document.getElementById('dashboard-container'); // Nuovo selettore
-        const mainContentAreaEl = document.getElementById('main-content-area'); // Nuovo selettore per l'area contenitore
+        const dashboardContainerEl = document.getElementById('dashboard-container'); // Rimosso
+        const mainContentAreaEl = document.getElementById('main-content-area'); // Rimosso
 
         const currentProjectTitleEl = document.getElementById('current-project-title');
         const addTaskBtn = document.getElementById('add-task-btn');
@@ -291,7 +288,7 @@
         const searchInput = document.getElementById('search-input'); // Nuovo selettore
         const toggleArchivedProjectsBtn = document.getElementById('toggle-archived-projects-btn'); // Nuovo selettore
         const toggleArchivedProjectsText = document.getElementById('toggle-archived-projects-text'); // Nuovo selettore
-        const viewToggleButtons = document.querySelectorAll('.view-toggle-btn'); // Nuovi selettori per i pulsanti di vista
+        // const viewToggleButtons = document.querySelectorAll('.view-toggle-btn'); // Rimosso
 
         // Task Modal
         const taskModal = document.getElementById('task-modal');
@@ -643,15 +640,14 @@
         // --- LOGICA MODALE ---
         const openModal = (modalEl) => {
             modalEl.classList.remove('hidden');
-            // Aggiungi la classe 'show' per attivare le transizioni
             setTimeout(() => {
-                modalEl.classList.add('show');
+                modalEl.classList.remove('opacity-0');
+                modalEl.querySelector('.modal-content').classList.remove('-translate-y-10');
             }, 10);
         };
         const closeModal = (modalEl) => {
-            // Rimuovi la classe 'show' per attivare le transizioni di chiusura
-            modalEl.classList.remove('show');
-            // Nascondi completamente l'elemento solo dopo la transizione
+            modalEl.classList.add('opacity-0');
+            modalEl.querySelector('.modal-content').classList.add('-translate-y-10');
             setTimeout(() => modalEl.classList.add('hidden'), 300);
         };
 
