@@ -520,6 +520,7 @@
     toggleArchivedProjectsBtn.classList.remove('bg-gray-900', 'text-gray-300', 'shadow-sm'); // Rimuovi classi dello stato "attivi"
     // Gestisci hover specifico per questo stato se necessario
     toggleArchivedProjectsBtn.classList.add('hover:bg-gray-800'); // Hover più chiaro del 900
+    projectViewStatusEl.textContent = 'Stai guardando i progetti Archiviati';
 } else {
     // Quando mostra progetti attivi (modalità attiva per gli attivi)
     toggleArchivedProjectsText.textContent = 'Mostra Progetti Archiviati';
@@ -528,6 +529,7 @@
     toggleArchivedProjectsBtn.classList.remove('bg-gray-900', 'text-purple-300', 'shadow-md'); // Rimuovi classi dello stato "archiviati"
     // Gestisci hover specifico per questo stato se necessario
     toggleArchivedProjectsBtn.classList.add('hover:bg-gray-600'); // Hover più chiaro del 700
+    projectViewStatusEl.textContent = 'Stai guardando i progetti Attivi'; 
 }
 
             projectsToRender.forEach(project => {
