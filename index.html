@@ -517,14 +517,14 @@
     toggleArchivedProjectsText.textContent = 'Mostra Progetti Attivi';
     toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'unarchive';
     toggleArchivedProjectsBtn.classList.add('bg-gray-900', 'text-purple-300', 'shadow-md'); // Più scuro
-    toggleArchivedProjectsBtn.classList.remove('bg-gray-700', 'text-gray-100', 'shadow-sm'); // Rimuovi classi dello stato "attivi"
+    toggleArchivedProjectsBtn.classList.remove('bg-gray-900', 'text-gray-100', 'shadow-sm'); // Rimuovi classi dello stato "attivi"
     // Gestisci hover specifico per questo stato se necessario
     toggleArchivedProjectsBtn.classList.add('hover:bg-gray-800'); // Hover più chiaro del 900
 } else {
     // Quando mostra progetti attivi (modalità attiva per gli attivi)
     toggleArchivedProjectsText.textContent = 'Mostra Progetti Archiviati';
     toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'archive';
-    toggleArchivedProjectsBtn.classList.add('bg-gray-900', opacity-50, 'text-gray-100', 'shadow-sm'); // Più chiaro
+    toggleArchivedProjectsBtn.classList.add('bg-gray-900','text-gray-100', 'shadow-sm'); // Più chiaro
     toggleArchivedProjectsBtn.classList.remove('bg-gray-900', 'text-purple-300', 'shadow-md'); // Rimuovi classi dello stato "archiviati"
     // Gestisci hover specifico per questo stato se necessario
     toggleArchivedProjectsBtn.classList.add('hover:bg-gray-600'); // Hover più chiaro del 700
