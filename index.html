@@ -83,6 +83,10 @@
             <div id="user-info-display" class="px-6 py-2 border-b border-gray-800 text-center hidden">
                 <!-- Contenuto dinamico: email e foto profilo -->
             </div>
+            <!-- Indicatore della modalità progetti (attivi/archiviati) -->
+            <div id="project-view-status" class="px-6 py-2 text-center text-sm font-medium text-gray-400">
+                <!-- Testo dinamico -->
+            </div>
             <nav id="project-list" class="flex-1 p-4 space-y-1">
                 <div class="text-center text-gray-500 text-sm mt-4">Caricamento...</div>
             </nav>
@@ -91,11 +95,11 @@
                     <span class="material-symbols-outlined">create_new_folder</span>
                     <span>Nuovo Progetto</span>
                 </button>
-                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm opacity-50 font-medium p-2 rounded-md transition-colors mt-2">
+                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">archive</span>
                     <span id="toggle-archived-projects-text">Mostra Progetti Archiviati</span>
                 </button>
-                <button id="logout-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 opacity-50 hover:bg-gray-800 p-2 rounded-md transition-colors mt-2">
+                <button id="logout-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 hover:bg-gray-700 p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Logout</span>
                 </button>
@@ -239,7 +243,7 @@
                 </div>
                 <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
                     <button type="button" id="cancel-progress-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento viola -->
+                    <button type="submit" id="save-progress-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento viola -->
                 </div>
             </form>
         </div>
@@ -353,6 +357,8 @@
         const searchInput = document.getElementById('search-input'); 
         const toggleArchivedProjectsBtn = document.getElementById('toggle-archived-projects-btn'); 
         const toggleArchivedProjectsText = document.getElementById('toggle-archived-projects-text'); 
+        const projectViewStatusEl = document.getElementById('project-view-status'); // Nuovo selettore per il messaggio di stato
+
 
         // Task Modal
         const taskModal = document.getElementById('task-modal');
@@ -505,7 +511,7 @@
             // Filtra i progetti in base a showArchivedProjects
             let projectsToRender = state.projects.filter(p => p.archived === state.showArchivedProjects);
 
-            // Se stiamo mostrando i progetti archiviati, aggiorna il testo del pulsante
+            // Aggiorna il testo del pulsante e lo stile del pulsante di toggle
             if (state.showArchivedProjects) {
                 toggleArchivedProjectsText.textContent = 'Mostra Progetti Attivi';
                 toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'unarchive';
@@ -513,12 +519,14 @@
                 toggleArchivedProjectsBtn.classList.add('bg-gray-700', 'text-purple-300', 'shadow-md');
                 toggleArchivedProjectsBtn.classList.remove('text-gray-100', 'hover:bg-gray-800', 'hover:text-white');
                 toggleArchivedProjectsBtn.classList.add('hover:bg-gray-600');
+                projectViewStatusEl.textContent = 'Stai guardando i progetti Archiviati'; // Aggiorna il messaggio di stato
             } else {
                 toggleArchivedProjectsText.textContent = 'Mostra Progetti Archiviati';
                 toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'archive';
                 // Rimuovi evidenziazione dal pulsante "Mostra Progetti Archiviati"
                 toggleArchivedProjectsBtn.classList.remove('bg-gray-700', 'text-purple-300', 'shadow-md', 'hover:bg-gray-600');
                 toggleArchivedProjectsBtn.classList.add('bg-gray-800', 'text-gray-100', 'hover:bg-gray-700', 'hover:text-white');
+                projectViewStatusEl.textContent = 'Stai guardando i progetti Attivi'; // Aggiorna il messaggio di stato
             }
 
             projectsToRender.forEach(project => {
