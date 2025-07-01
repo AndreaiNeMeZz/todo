@@ -1223,6 +1223,38 @@
             logoutUser();
         });
 
+        // --- LISTENER PER L'AUTENTICAZIONE ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+            loginUser(email, password);
+        });
+
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = registerEmailInput.value;
+            const password = registerPasswordInput.value;
+            registerUser(email, password);
+        });
+
+        googleLoginBtn.addEventListener('click', signInWithGoogle);
+
+        authFormToggles.forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                const formToShow = e.target.dataset.form;
+                if (formToShow === 'login') {
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                    authModalTitle.textContent = 'Accedi';
+                } else if (formToShow === 'register') {
+                    loginForm.classList.add('hidden');
+                    registerForm.classList.remove('hidden');
+                    authModalTitle.textContent = 'Registrati';
+                }
+            });
+        });
+
 
         // --- INIZIALIZZAZIONE FIREBASE ---
         async function initializeAppAndAuth() {
