@@ -42,9 +42,10 @@
     <div id="app" class="flex h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col"> <!-- Sidebar più scura, bordo più scuro -->
-            <div class="px-6 py-4 border-b border-gray-800 flex items-center gap-2"> <!-- Bordo inferiore più scuro -->
-                <span class="material-symbols-outlined text-emerald-400">task_alt</span> <!-- Icona con accento verde smeraldo -->
-                <h1 class="text-2xl font-bold text-gray-100">Super-ToDo</h1>
+            <div class="px-6 py-4 border-b border-gray-800 flex flex-col items-center gap-2"> <!-- Utilizzo flex-col e items-center per centrare verticalmente -->
+                <!-- Immagine sopra il testo, dimensioni leggermente aumentate -->
+                <img src="https://github.com/AndreaiNeMeZz/todo/blob/main/UltraIstinto.gif?raw=true" alt="Logo SuperToDo" class="h-[110px] w-[110px] rounded-full mb-2"> <!-- Aumentata la dimensione e aggiunto margine inferiore -->
+                <h1 class="text-2xl font-bold text-gray-100">SuperGod-ToDo</h1>
             </div>
             <nav id="project-list" class="flex-1 p-4 space-y-1">
                 <div class="text-center text-gray-500 text-sm mt-4">Caricamento...</div>
@@ -63,13 +64,13 @@
                 <div>
                     <h2 id="current-project-title" class="text-xl font-bold text-gray-100"></h2>
                     <div id="filter-buttons" class="flex items-center gap-4 mt-1">
-                        <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-emerald-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button> <!-- Accento verde smeraldo -->
+                        <button data-filter="all" class="filter-btn active flex items-center gap-1 text-sm font-medium text-purple-400"><span class="material-symbols-outlined text-base">list</span><span>Tutti</span></button> <!-- Accento viola -->
                         <button data-filter="active" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">checklist_rtl</span><span>Attivi</span></button>
                         <button data-filter="completed" class="filter-btn flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-gray-200"><span class="material-symbols-outlined text-base">task_alt</span><span>Completati</span></button>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button id="add-task-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"> <!-- Pulsante con accento verde smeraldo -->
+                    <button id="add-task-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"> <!-- Pulsante con accento viola -->
                         <span class="material-symbols-outlined">add</span>
                         <span>Nuovo Task</span>
                     </button>
@@ -90,20 +91,20 @@
                     <input type="hidden" id="task-id">
                     <div class="mb-4">
                         <label for="task-title" class="block text-sm font-medium text-gray-300 mb-1">Titolo</label>
-                        <input type="text" id="task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus verde smeraldo -->
+                        <input type="text" id="task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus viola -->
                     </div>
                     <div class="mb-4">
                         <label for="task-description" class="block text-sm font-medium text-gray-300 mb-1">Descrizione</p>
-                        <textarea id="task-description" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"></textarea> <!-- Input con focus verde smeraldo -->
+                        <textarea id="task-description" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"></textarea> <!-- Input con focus viola -->
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="task-due-date" class="block text-sm font-medium text-gray-300 mb-1">Scadenza</label>
-                            <input type="date" id="task-due-date" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus verde smeraldo -->
+                            <input type="date" id="task-due-date" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> <!-- Input con focus viola -->
                         </div>
                         <div>
                             <label for="task-priority" class="block text-sm font-medium text-gray-300 mb-1">Priorità</label>
-                            <select id="task-priority" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors"> <!-- Select con focus verde smeraldo -->
+                            <select id="task-priority" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors"> <!-- Select con focus viola -->
                                 <option value="low">Bassa</option>
                                 <option value="medium" selected>Media</option>
                                 <option value="high">Alta</option>
@@ -114,7 +115,7 @@
                 </div>
                 <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
                     <button type="button" id="cancel-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" id="save-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg">Salva Task</button> <!-- Pulsante con accento verde smeraldo -->
+                    <button type="submit" id="save-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Task</button> <!-- Pulsante con accento viola -->
                 </div>
             </form>
         </div>
@@ -128,12 +129,12 @@
                     <h3 class="text-xl font-bold mb-4 text-gray-100">Nuovo Progetto</h3>
                     <div class="mb-1">
                         <label for="project-name" class="block text-sm font-medium text-gray-300 mb-1">Nome del Progetto</label>
-                        <input type="text" id="project-name" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors" required> <!-- Input con focus verde smeraldo -->
+                        <input type="text" id="project-name" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" required> <!-- Input con focus viola -->
                     </div>
                 </div>
                 <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
                     <button type="button" id="cancel-project-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg">Crea Progetto</button> <!-- Pulsante con accento verde smeraldo -->
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Crea Progetto</button> <!-- Pulsante con accento viola -->
                 </div>
             </form>
         </div>
@@ -148,20 +149,16 @@
                     <input type="hidden" id="progress-task-id">
                     <div class="mb-4">
                         <label for="progress-task-title" class="block text-sm font-medium text-gray-300 mb-1">Task</label>
-                        <input type="text" id="progress-task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors" readonly> <!-- Input con focus verde smeraldo -->
+                        <input type="text" id="progress-task-title" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" readonly> <!-- Input con focus viola -->
                     </div>
                     <div class="mb-4">
-                        <label for="progress-text" class="block text-sm font-medium text-gray-300 mb-1">Progresso</label>
-                        <textarea id="progress-text" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors" placeholder="Es: 2 palette su 4 recuperate..."></textarea> <!-- Input con focus verde smeraldo -->
-                    </div>
-                    <div class="mb-4">
-                        <label for="progress-timestamp" class="block text-sm font-medium text-gray-300 mb-1">Data/Ora Progresso (Opzionale)</label>
-                        <input type="datetime-local" id="progress-timestamp" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-500 focus:bg-gray-700 transition-colors">
+                        <label for="progress-text" class="block text-sm font-medium text-gray-300 mb-1">Nuovo Progresso</label>
+                        <textarea id="progress-text" rows="3" class="w-full border-gray-700 bg-gray-700 text-gray-100 rounded-md shadow-sm focus:ring-2 focus:ring-purple-400 focus:border-purple-500 focus:bg-gray-700 transition-colors" placeholder=""></textarea> <!-- Input con focus viola -->
                     </div>
                 </div>
                 <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
                     <button type="button" id="cancel-progress-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" id="save-progress-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento verde smeraldo -->
+                    <button type="submit" id="save-progress-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento viola -->
                 </div>
             </form>
         </div>
@@ -226,7 +223,7 @@
         const progressTaskIdInput = document.getElementById('progress-task-id');
         const progressTaskTitleInput = document.getElementById('progress-task-title');
         const progressTextInput = document.getElementById('progress-text');
-        const progressTimestampInput = document.getElementById('progress-timestamp'); // Nuovo selettore per il timestamp
+        // const progressTimestampInput = document.getElementById('progress-timestamp'); // Selettore rimosso
 
         // --- FUNZIONI DI RENDERIZZAZIONE ---
         const renderProjects = () => {
@@ -239,10 +236,10 @@
             state.projects.forEach(project => {
                 const isActive = project.id === state.activeProjectId;
                 const projectWrapper = document.createElement('div');
-                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-emerald-900/50' : 'hover:bg-gray-700'}`; /* Sfondo attivo e hover aggiornati */
+                projectWrapper.className = `group w-full flex justify-between items-center p-2 rounded-md cursor-pointer ${isActive ? 'bg-purple-900/50' : 'hover:bg-gray-700'}`; /* Sfondo attivo e hover aggiornati */
                 
                 const nameSpan = document.createElement('span');
-                nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-emerald-300' : 'text-gray-300'}`; /* Colore testo attivo e inattivo aggiornati */
+                nameSpan.className = `flex-1 text-left font-medium ${isActive ? 'text-purple-300' : 'text-gray-300'}`; /* Colore testo attivo e inattivo aggiornati */
                 nameSpan.textContent = project.name;
                 nameSpan.addEventListener('click', () => {
                     state.activeProjectId = project.id;
@@ -274,6 +271,14 @@
             currentProjectTitleEl.textContent = activeProject.name;
             
             let tasksToRender = state.tasks.filter(task => task.projectId === state.activeProjectId);
+
+            // Filtra i task in base al filtro attivo
+            if (state.activeFilter === 'active') {
+                tasksToRender = tasksToRender.filter(task => !task.completed);
+            } else if (state.activeFilter === 'completed') {
+                tasksToRender = tasksToRender.filter(task => task.completed);
+            }
+
 
             // Definisci un mapping per le priorità per l'ordinamento
             const priorityOrder = {
@@ -327,18 +332,17 @@
                     visibleProgress.forEach((entry, index) => {
                         const entryDate = entry.timestamp.toDate ? entry.timestamp.toDate() : new Date(entry.timestamp);
                         if (!isNaN(entryDate.getTime())) {
-                            const options = {
-                                year: 'numeric', month: '2-digit', day: '2-digit',
-                                hour: '2-digit', minute: '2-digit', second: '2-digit',
-                                hour12: false,
-                                timeZone: 'Europe/Rome' // Fuso orario di Roma
-                            };
-                            const formattedEntryDate = entryDate.toLocaleDateString('it-IT', options);
-                            const formattedEntryTime = entryDate.toLocaleTimeString('it-IT', options);
-                            const styling = index === 0 ? 'text-base font-semibold text-emerald-300' : 'text-sm text-gray-400'; // Il più recente è prominente
+                            const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Rome' };
+                            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Rome' };
+                            
+                            const formattedDate = entryDate.toLocaleDateString('it-IT', dateOptions);
+                            const formattedTime = entryDate.toLocaleTimeString('it-IT', timeOptions);
+
+                            const styling = index === 0 ? 'text-base font-semibold text-purple-300' : 'text-sm text-gray-400'; // Il più recente è prominente
+                            const progressLabel = index === 0 ? '<span class="text-blue-400">Progresso:</span> ' : ''; // Aggiungi "Progresso:" solo al più recente
                             fullProgressHistoryHTML += `<div class="${styling} mt-1 mb-1">
-                                <span>${entry.text}</span>
-                                <span class="text-xs text-gray-500 ml-2">(${formattedEntryDate} ${formattedEntryTime})</span>
+                                ${progressLabel}<span>${entry.text}</span>
+                                <span class="text-xs text-gray-500 ml-2">(${formattedDate}, ${formattedTime})</span>
                             </div>`;
                         }
                     });
@@ -349,17 +353,14 @@
                         hiddenProgress.forEach(entry => {
                             const entryDate = entry.timestamp.toDate ? entry.timestamp.toDate() : new Date(entry.timestamp);
                             if (!isNaN(entryDate.getTime())) {
-                                const options = {
-                                    year: 'numeric', month: '2-digit', day: '2-digit',
-                                    hour: '2-digit', minute: '2-digit', second: '2-digit',
-                                    hour12: false,
-                                    timeZone: 'Europe/Rome' // Fuso orario di Roma
-                                };
-                                const formattedEntryDate = entryDate.toLocaleDateString('it-IT', options);
-                                const formattedEntryTime = entryDate.toLocaleTimeString('it-IT', options);
+                                const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Europe/Rome' };
+                                const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Europe/Rome' };
+                                
+                                const formattedDate = entryDate.toLocaleDateString('it-IT', dateOptions);
+                                const formattedTime = entryDate.toLocaleTimeString('it-IT', timeOptions);
                                 fullProgressHistoryHTML += `<div class="text-xs text-gray-500 mt-1 mb-1">
                                     <span>${entry.text}</span>
-                                    <span class="ml-2">(${formattedEntryDate} ${formattedEntryTime})</span>
+                                    <span class="ml-2">(${formattedDate}, ${formattedTime})</span>
                                 </div>`;
                             }
                         });
@@ -374,7 +375,7 @@
                 }
 
                 taskEl.innerHTML = `
-                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-emerald-600 focus:ring-emerald-500" ${task.completed ? 'checked' : ''}>
+                    <input type="checkbox" data-task-id="${task.id}" class="toggle-task-cb mt-1 h-5 w-5 rounded border-gray-600 text-purple-600 focus:ring-purple-500" ${task.completed ? 'checked' : ''}>
                     <div class="flex-1">
                         <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title}</p>
                         ${descriptionHTML}
@@ -388,8 +389,8 @@
                         </div>
                     </div>
                     <div class="task-actions flex items-center gap-2 opacity-0 transition-opacity">
-                        <button class="update-progress-btn text-gray-400 hover:text-blue-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">sync</span></button>
-                        <button class="edit-btn text-gray-400 hover:text-emerald-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button>
+                        <button class="update-progress-btn text-gray-400 hover:text-blue-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">add_notes</span></button>
+                        <button class="edit-btn text-gray-400 hover:text-purple-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">edit</span></button>
                         <button class="delete-btn text-gray-400 hover:text-red-400 p-1 rounded-full" data-task-id="${task.id}"><span class="material-symbols-outlined text-lg">delete</span></button>
                     </div>
                 `;
@@ -440,25 +441,9 @@
             progressTaskIdInput.value = task.id;
             progressTaskTitleInput.value = task.title; // Titolo del task in sola lettura
             
-            const latestProgress = task.progressHistory && task.progressHistory.length > 0 
-                                 ? task.progressHistory[task.progressHistory.length - 1] 
-                                 : null;
-
-            progressTextInput.value = latestProgress ? latestProgress.text : ''; // Progresso attuale
+            // Il campo di testo del progresso deve essere vuoto per un nuovo inserimento
+            progressTextInput.value = ''; 
             
-            // Popola il campo data/ora con l'ultimo timestamp o l'ora corrente
-            if (latestProgress && latestProgress.timestamp) {
-                const date = latestProgress.timestamp.toDate ? latestProgress.timestamp.toDate() : new Date(latestProgress.timestamp);
-                if (!isNaN(date.getTime())) {
-                    // Formatta la data per il fuso orario di Roma per l'input datetime-local
-                    const romeDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Rome' }));
-                    progressTimestampInput.value = romeDate.toISOString().slice(0, 16);
-                } else {
-                    progressTimestampInput.value = new Date().toISOString().slice(0, 16); // Fallback all'ora attuale
-                }
-            } else {
-                progressTimestampInput.value = new Date().toISOString().slice(0, 16); // Default all'ora attuale
-            }
             openModal(progressModal);
         };
 
@@ -499,18 +484,9 @@
             e.preventDefault();
             const taskId = progressTaskIdInput.value;
             const newProgressText = progressTextInput.value;
-            const manualTimestampString = progressTimestampInput.value;
 
-            let chosenDate;
-            if (manualTimestampString) {
-                chosenDate = new Date(manualTimestampString);
-                if (isNaN(chosenDate.getTime())) { // Valida la data manuale
-                    chosenDate = new Date(); // Fallback all'ora corrente se non valida
-                    console.warn("Data/ora progresso manuale non valida, usando l'ora corrente.");
-                }
-            } else {
-                chosenDate = new Date(); // Usa l'ora corrente se il campo è vuoto
-            }
+            // Ora la data è sempre quella corrente
+            let chosenDate = new Date(); 
 
             if (taskId) {
                 const taskRef = doc(state.fb_db, `/artifacts/${state.appId}/users/${state.userId}/tasks`, taskId);
@@ -599,9 +575,9 @@
         filterButtons.forEach(button => {
             button.addEventListener('click', () => {
                 state.activeFilter = button.dataset.filter;
-                filterButtons.forEach(btn => btn.classList.remove('active', 'text-emerald-400'));
+                filterButtons.forEach(btn => btn.classList.remove('active', 'text-purple-400'));
                 filterButtons.forEach(btn => btn.classList.add('text-gray-400', 'hover:text-gray-200'));
-                button.classList.add('active', 'text-emerald-400');
+                button.classList.add('active', 'text-purple-400');
                 button.classList.remove('text-gray-400', 'hover:text-gray-200');
                 renderTasks();
             });
