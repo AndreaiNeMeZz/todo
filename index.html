@@ -45,7 +45,7 @@
             transform: translateY(20px);
         }
         #feedback-message.show {
-            opacity: 1;
+            opacity: 0.5;
             transform: translateY(0);
         }
         #feedback-message.success {
@@ -91,11 +91,11 @@
                     <span class="material-symbols-outlined">create_new_folder</span>
                     <span>Nuovo Progetto</span>
                 </button>
-                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-100 hover:bg-gray-800 hover:text-white p-2 rounded-md transition-colors mt-2">
+                <button id="toggle-archived-projects-btn" class="w-full flex items-center gap-2 text-sm opacity-50 font-medium p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">archive</span>
                     <span id="toggle-archived-projects-text">Mostra Progetti Archiviati</span>
                 </button>
-                <button id="logout-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 hover:bg-gray-700 p-2 rounded-md transition-colors mt-2">
+                <button id="logout-btn" class="w-full flex items-center gap-2 text-sm font-medium text-gray-300 hover:text-gray-100 opacity-50 hover:bg-gray-800 p-2 rounded-md transition-colors mt-2">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Logout</span>
                 </button>
@@ -239,7 +239,7 @@
                 </div>
                 <div class="bg-gray-900/50 px-6 py-3 flex justify-end gap-3 rounded-b-lg"> <!-- Sfondo footer modale più scuro -->
                     <button type="button" id="cancel-progress-btn" class="bg-gray-700 hover:bg-gray-600 text-gray-200 font-bold py-2 px-4 rounded-lg border border-gray-600">Annulla</button>
-                    <button type="submit" id="save-progress-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento viola -->
+                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">Salva Progresso</button> <!-- Pulsante con accento viola -->
                 </div>
             </form>
         </div>
@@ -509,9 +509,16 @@
             if (state.showArchivedProjects) {
                 toggleArchivedProjectsText.textContent = 'Mostra Progetti Attivi';
                 toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'unarchive';
+                // Evidenzia il pulsante "Mostra Progetti Archiviati"
+                toggleArchivedProjectsBtn.classList.add('bg-gray-700', 'text-purple-300', 'shadow-md');
+                toggleArchivedProjectsBtn.classList.remove('text-gray-100', 'hover:bg-gray-800', 'hover:text-white');
+                toggleArchivedProjectsBtn.classList.add('hover:bg-gray-600');
             } else {
                 toggleArchivedProjectsText.textContent = 'Mostra Progetti Archiviati';
                 toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'archive';
+                // Rimuovi evidenziazione dal pulsante "Mostra Progetti Archiviati"
+                toggleArchivedProjectsBtn.classList.remove('bg-gray-700', 'text-purple-300', 'shadow-md', 'hover:bg-gray-600');
+                toggleArchivedProjectsBtn.classList.add('bg-gray-800', 'text-gray-100', 'hover:bg-gray-700', 'hover:text-white');
             }
 
             projectsToRender.forEach(project => {
@@ -567,9 +574,6 @@
                 taskListContainerEl.classList.remove('hidden');
             } else { // dashboard (nel caso volessimo riaggiungerla)
                 taskListContainerEl.classList.add('hidden');
-                // dashboardContainerEl.classList.remove('hidden');
-                // renderDashboard();
-                // return;
             }
 
 
@@ -995,6 +999,9 @@
 
         // Listener per il nuovo modale del progresso
         cancelProgressBtn.addEventListener('click', () => closeModal(progressModal));
+        confirmLogoutBtn.addEventListener('click', confirmAndPerformLogout); // Listener per conferma logout
+        cancelLogoutBtn.addEventListener('click', () => closeModal(logoutConfirmModal)); // Listener per annulla logout
+
         progressForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const taskId = progressTaskIdInput.value;
