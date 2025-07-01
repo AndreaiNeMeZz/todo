@@ -311,22 +311,66 @@
                 const descriptionHTML = task.description ? `<div class="text-sm text-gray-400">${task.description}</div>` : '';
                 
                 // Gestione e visualizzazione dello storico del progresso
-                const latestProgress = task.progressHistory && task.progressHistory.length > 0 
-                                     ? task.progressHistory[task.progressHistory.length - 1] 
-                                     : null;
-                
-                const progressText = latestProgress ? latestProgress.text : '';
-                const progressTimestamp = latestProgress && latestProgress.timestamp ? latestProgress.timestamp : null;
+                let fullProgressHistoryHTML = '';
+                if (task.progressHistory && Array.isArray(task.progressHistory) && task.progressHistory.length > 0) {
+                    // Ordina la cronologia del progresso per timestamp (dal più vecchio al più recente)
+                    task.progressHistory.sort((a, b) => {
+                        const timeA = a.timestamp.toDate ? a.timestamp.toDate().getTime() : new Date(a.timestamp).getTime();
+                        const timeB = b.timestamp.toDate ? b.timestamp.toDate().getTime() : new Date(b.timestamp).getTime();
+                        return timeA - timeB;
+                    });
 
-                const progressHTML = progressText ? `<div class="text-base font-semibold text-emerald-300 mt-2 mb-2">Progresso: ${progressText}</div>` : '';
-                
-                // Formatta la data e l'ora dell'ultimo aggiornamento (dal progresso più recente)
-                let lastUpdatedHTML = '';
-                if (progressTimestamp) {
-                    const date = progressTimestamp.toDate ? progressTimestamp.toDate() : new Date(progressTimestamp);
-                    if (!isNaN(date.getTime())) { // Valida la data
-                        lastUpdatedHTML = `<div class="text-xs text-gray-500 mt-1">Aggiornato: ${date.toLocaleDateString('it-IT')} ${date.toLocaleTimeString('it-IT')}</div>`;
+                    const visibleProgress = task.progressHistory.slice(-3).reverse(); // Ultimi 3, invertiti per mostrare il più recente in alto
+                    const hiddenProgress = task.progressHistory.slice(0, -3).reverse(); // Tutti tranne gli ultimi 3, invertiti per mostrare dal più recente al più vecchio
+
+                    // Renderizza i progressi visibili (ultimi 3)
+                    visibleProgress.forEach((entry, index) => {
+                        const entryDate = entry.timestamp.toDate ? entry.timestamp.toDate() : new Date(entry.timestamp);
+                        if (!isNaN(entryDate.getTime())) {
+                            const options = {
+                                year: 'numeric', month: '2-digit', day: '2-digit',
+                                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                                hour12: false,
+                                timeZone: 'Europe/Rome' // Fuso orario di Roma
+                            };
+                            const formattedEntryDate = entryDate.toLocaleDateString('it-IT', options);
+                            const formattedEntryTime = entryDate.toLocaleTimeString('it-IT', options);
+                            const styling = index === 0 ? 'text-base font-semibold text-emerald-300' : 'text-sm text-gray-400'; // Il più recente è prominente
+                            fullProgressHistoryHTML += `<div class="${styling} mt-1 mb-1">
+                                <span>${entry.text}</span>
+                                <span class="text-xs text-gray-500 ml-2">(${formattedEntryDate} ${formattedEntryTime})</span>
+                            </div>`;
+                        }
+                    });
+
+                    // Renderizza i progressi nascosti (più vecchi)
+                    if (hiddenProgress.length > 0) {
+                        fullProgressHistoryHTML += `<div id="older-progress-history-${task.id}" class="hidden">`;
+                        hiddenProgress.forEach(entry => {
+                            const entryDate = entry.timestamp.toDate ? entry.timestamp.toDate() : new Date(entry.timestamp);
+                            if (!isNaN(entryDate.getTime())) {
+                                const options = {
+                                    year: 'numeric', month: '2-digit', day: '2-digit',
+                                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                                    hour12: false,
+                                    timeZone: 'Europe/Rome' // Fuso orario di Roma
+                                };
+                                const formattedEntryDate = entryDate.toLocaleDateString('it-IT', options);
+                                const formattedEntryTime = entryDate.toLocaleTimeString('it-IT', options);
+                                fullProgressHistoryHTML += `<div class="text-xs text-gray-500 mt-1 mb-1">
+                                    <span>${entry.text}</span>
+                                    <span class="ml-2">(${formattedEntryDate} ${formattedEntryTime})</span>
+                                </div>`;
+                            }
+                        });
+                        fullProgressHistoryHTML += `</div>`; // Chiudi div nascosto
+
+                        // Aggiungi pulsante per mostrare/nascondere
+                        fullProgressHistoryHTML += `<button data-task-id="${task.id}" class="toggle-progress-history-btn text-xs text-blue-400 hover:text-blue-300 mt-2">Mostra tutti i progressi</button>`;
                     }
+                } else {
+                    // Se non c'è cronologia del progresso, mostra un placeholder
+                    fullProgressHistoryHTML = `<div class="text-sm text-gray-500 mt-2 mb-2">Nessun progresso ancora.</div>`;
                 }
 
                 taskEl.innerHTML = `
@@ -334,8 +378,7 @@
                     <div class="flex-1">
                         <p class="font-medium ${task.completed ? 'line-through text-gray-400' : 'text-gray-100'}">${task.title}</p>
                         ${descriptionHTML}
-                        ${progressHTML}
-                        ${lastUpdatedHTML}
+                        ${fullProgressHistoryHTML}
                         <div class="flex items-center gap-4 mt-2 text-sm text-gray-400">
                             ${task.dueDate ? `<span>Scadenza: ${new Date(task.dueDate).toLocaleDateString('it-IT', {timeZone: 'UTC'})}</span>` : ''}
                             <div class="flex items-center gap-2">
@@ -407,9 +450,11 @@
             if (latestProgress && latestProgress.timestamp) {
                 const date = latestProgress.timestamp.toDate ? latestProgress.timestamp.toDate() : new Date(latestProgress.timestamp);
                 if (!isNaN(date.getTime())) {
-                    progressTimestampInput.value = date.toISOString().slice(0, 16); // Formato per datetime-local
+                    // Formatta la data per il fuso orario di Roma per l'input datetime-local
+                    const romeDate = new Date(date.toLocaleString('en-US', { timeZone: 'Europe/Rome' }));
+                    progressTimestampInput.value = romeDate.toISOString().slice(0, 16);
                 } else {
-                    progressTimestampInput.value = new Date().toISOString().slice(0, 16);
+                    progressTimestampInput.value = new Date().toISOString().slice(0, 16); // Fallback all'ora attuale
                 }
             } else {
                 progressTimestampInput.value = new Date().toISOString().slice(0, 16); // Default all'ora attuale
@@ -512,7 +557,17 @@
                     state.tasks[taskIndex].completed = target.checked;
                     renderTasks(); // Re-render immediato per feedback visivo
                 }
-                await updateDoc(taskRef, { completed: target.checked });
+                try {
+                    await updateDoc(taskRef, { completed: target.checked });
+                } catch (error) {
+                    console.error("Errore nell'aggiornamento dello stato di completamento del task:", error);
+                    // Revert optimistic update if Firestore update fails
+                    if (taskIndex !== -1) {
+                        state.tasks[taskIndex].completed = !target.checked;
+                        renderTasks(); // Re-render per ripristinare lo stato precedente
+                    }
+                    // Puoi aggiungere qui un messaggio di errore visibile all'utente
+                }
             }
             if (target.classList.contains('delete-btn')) {
                 await deleteDoc(taskRef);
@@ -525,6 +580,19 @@
             if (target.classList.contains('update-progress-btn')) {
                 const task = state.tasks.find(t => t.id === taskId);
                 if (task) openProgressModal(task);
+            }
+
+            // Listener per il pulsante di toggle della cronologia del progresso
+            if (target.classList.contains('toggle-progress-history-btn')) {
+                const historyDiv = document.getElementById(`older-progress-history-${taskId}`);
+                if (historyDiv) {
+                    historyDiv.classList.toggle('hidden');
+                    if (historyDiv.classList.contains('hidden')) {
+                        target.textContent = 'Mostra tutti i progressi';
+                    } else {
+                        target.textContent = 'Nascondi progressi';
+                    }
+                }
             }
         });
 
