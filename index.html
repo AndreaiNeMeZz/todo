@@ -170,7 +170,12 @@
 
         // --- INIZIO CONFIGURAZIONE FIREBASE ---
         // La configurazione di Firebase viene caricata dinamicamente dall'ambiente
-        let firebaseConfig = {};
+        let firebaseConfig = {apiKey: "AIzaSyBp9CIqOt69t5NFeIWMB_oUz3afYwhp1Dg",
+  authDomain: "mia-todo-list.firebaseapp.com",
+  projectId: "mia-todo-list",
+  storageBucket: "mia-todo-list.firebasestorage.app",
+  messagingSenderId: "1027762821435",
+  appId: "1:1027762821435:web:319b6c716b3ad43e1f7f1e"};
         try {
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 firebaseConfig = JSON.parse(__firebase_config);
