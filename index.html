@@ -513,21 +513,22 @@
 
             // Aggiorna il testo del pulsante e lo stile del pulsante di toggle
             if (state.showArchivedProjects) {
-                toggleArchivedProjectsText.textContent = 'Mostra Progetti Attivi';
-                toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'unarchive';
-                // Evidenzia il pulsante "Mostra Progetti Archiviati"
-                toggleArchivedProjectsBtn.classList.add('bg-gray-700', 'text-purple-300', 'shadow-md');
-                toggleArchivedProjectsBtn.classList.remove('text-gray-100', 'hover:bg-gray-800', 'hover:text-white');
-                toggleArchivedProjectsBtn.classList.add('hover:bg-gray-600');
-                projectViewStatusEl.textContent = 'Stai guardando i progetti Archiviati'; // Aggiorna il messaggio di stato
-            } else {
-                toggleArchivedProjectsText.textContent = 'Mostra Progetti Archiviati';
-                toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'archive';
-                // Rimuovi evidenziazione dal pulsante "Mostra Progetti Archiviati"
-                toggleArchivedProjectsBtn.classList.remove('bg-gray-700', 'text-purple-300', 'shadow-md', 'hover:bg-gray-600');
-                toggleArchivedProjectsBtn.classList.add('bg-gray-800', 'text-gray-100', 'hover:bg-gray-700', 'hover:text-white');
-                projectViewStatusEl.textContent = 'Stai guardando i progetti Attivi'; // Aggiorna il messaggio di stato
-            }
+    // Quando mostra progetti archiviati (modalità attiva per gli archiviati)
+    toggleArchivedProjectsText.textContent = 'Mostra Progetti Attivi';
+    toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'unarchive';
+    toggleArchivedProjectsBtn.classList.add('bg-gray-900', 'text-purple-300', 'shadow-md'); // Più scuro
+    toggleArchivedProjectsBtn.classList.remove('bg-gray-700', 'text-gray-100', 'shadow-sm'); // Rimuovi classi dello stato "attivi"
+    // Gestisci hover specifico per questo stato se necessario
+    toggleArchivedProjectsBtn.classList.add('hover:bg-gray-800'); // Hover più chiaro del 900
+} else {
+    // Quando mostra progetti attivi (modalità attiva per gli attivi)
+    toggleArchivedProjectsText.textContent = 'Mostra Progetti Archiviati';
+    toggleArchivedProjectsBtn.querySelector('.material-symbols-outlined').textContent = 'archive';
+    toggleArchivedProjectsBtn.classList.add('bg-gray-700', 'text-gray-100', 'shadow-sm'); // Più chiaro
+    toggleArchivedProjectsBtn.classList.remove('bg-gray-900', 'text-purple-300', 'shadow-md'); // Rimuovi classi dello stato "archiviati"
+    // Gestisci hover specifico per questo stato se necessario
+    toggleArchivedProjectsBtn.classList.add('hover:bg-gray-600'); // Hover più chiaro del 700
+}
 
             projectsToRender.forEach(project => {
                 const isActive = project.id === state.activeProjectId;
